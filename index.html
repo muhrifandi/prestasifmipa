@@ -11,7 +11,6 @@
 
   <!-- Tailwind CONFIG (HARUS sebelum CDN) -->
   <script>
-    /* Konfigurasi Tailwind untuk tema & warna brand */
     window.tailwind = window.tailwind || {};
     window.tailwind.config = {
       darkMode: 'class',
@@ -29,8 +28,9 @@
 
   <!-- Fallback CSS (sederhana) & dukungan dark-mode saat Tailwind OFF -->
   <style>
-    :root { --bg:#f9fafb; --fg:#111827; --card:#ffffff; --border:#e5e7eb; }
-    html.dark { --bg:#0b1020; --fg:#e5e7eb; --card:#0b1020; --border:#374151; }
+    :root { --bg:#f9fafb; --fg:#111827; --card:#ffffff; --border:#e5e7eb; --grid:#e5e7eb; }
+    html.dark { --bg:#0b1020; --fg:#e5e7eb; --card:#0f1530; --border:#374151; --grid:#273045; }
+
     [data-tw="off"] body{background:var(--bg);color:var(--fg)}
     [data-tw="off"] header,[data-tw="off"] .toolbar{background:var(--card);border-bottom:1px solid var(--border)}
     [data-tw="off"] .container{max-width:1200px;margin:0 auto;padding:0 1rem}
@@ -42,8 +42,8 @@
     [data-tw="off"] .rounded-xl{border-radius:1rem} [data-tw="off"] .rounded-2xl{border-radius:1.25rem}
     [data-tw="off"] .w-full{width:100%}
     [data-tw="off"] .text-sm{font-size:.875rem} [data-tw="off"] .text-lg{font-size:1.125rem} [data-tw="off"] .text-xl{font-size:1.25rem}
-    .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem .9rem;border-radius:.8rem;border:1px solid rgba(0,0,0,.06);background:#fff}
-    html.dark .btn{background:transparent;border-color:var(--border)}
+
+    .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem .9rem;border-radius:.8rem;border:1px solid var(--border);background:var(--card)}
     .btn.primary{background:#6b8cff;color:#fff;border-color:transparent}
     .btn.warn{background:#f59e0b;color:#111827;border-color:transparent}
     .btn.danger{background:#ef4444;color:#fff;border-color:transparent}
@@ -54,18 +54,22 @@
     .badge.wait{background:#fef3c7;color:#92400e}.badge.ok{background:#dcfce7;color:#14532d}.badge.no{background:#fee2e2;color:#991b1b}
     .toast{position:fixed;right:1rem;bottom:1rem;display:flex;flex-direction:column;gap:.5rem;z-index:60}
     .toast-item{background:#111827;color:#fff;padding:.75rem 1rem;border-radius:.75rem;box-shadow:0 8px 30px rgba(0,0,0,.25)}
-    .table-wrap{overflow:auto}.table{width:100%;border-collapse:separate;border-spacing:0}
+
+    /* Tabel mobile scroll */
+    .table-wrap{overflow:auto}
+    .table{min-width:900px;border-collapse:separate;border-spacing:0}
     .table th,.table td{padding:.65rem .75rem;border-bottom:1px solid var(--border);vertical-align:top}
     .table th{font-weight:600;white-space:nowrap;position:sticky;top:0;background:var(--card);z-index:1}
-    .modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:1rem;z-index:50}
+
+    /* Modal */
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:1rem;z-index:100}
     .modal-card{background:var(--card);border:1px solid var(--border);max-height:90vh;overflow:auto;border-radius:1.25rem}
-    /* Navbar rapi: satu baris, bisa geser horizontal bila sempit */
-    .nav-scroller{overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
-    .nav-scroller::-webkit-scrollbar{display:none}
+
+    /* Navbar */
     .nav-link{white-space:nowrap;padding:.5rem .75rem;border-radius:.75rem}
     .nav-link:hover{background:rgba(107,140,255,.12)}
     .nav-active{color:#6b8cff;font-weight:700;background:rgba(107,140,255,.12)}
-    .brand-grad { background:linear-gradient(135deg,#6b8cff,#9a7bff); -webkit-background-clip:text;background-clip:text;color:transparent; }
+    .brand-grad{background:linear-gradient(135deg,#6b8cff,#9a7bff);-webkit-background-clip:text;background-clip:text;color:transparent}
   </style>
 </head>
 <body class="min-h-screen bg-gray-50 text-gray-900 transition-colors duration-200 dark:bg-[#0b1020] dark:text-gray-100">
@@ -73,22 +77,22 @@
   <div id="toast" class="toast"></div>
 
   <!-- Header -->
-  <header class="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-gray-200 dark:bg-[#0b1020]/80 dark:border-gray-700">
+  <header class="sticky top-0 z-50 bg-white/80 backdrop-blur border-b border-gray-200 dark:bg-[#0b1020]/80 dark:border-gray-700">
     <div class="container max-w-screen-xl mx-auto px-4">
       <div class="flex items-center justify-between py-3">
         <div class="flex items-center gap-3 min-w-0">
-          <!-- Logo (akan di-set dinamis) -->
           <img id="logoImg" alt="Logo Unsulbar" class="w-10 h-10 rounded-xl object-contain border border-gray-200 dark:border-gray-700 shadow-inner" />
           <div class="truncate">
-            <h1 class="text-lg font-semibold">
-              Sistem Data Prestasi <span class="brand-grad">FMIPA</span>
-            </h1>
+            <h1 class="text-lg font-semibold">Sistem Data Prestasi <span class="brand-grad">FMIPA</span></h1>
             <p class="text-sm text-gray-600 dark:text-gray-400">Universitas Sulawesi Barat</p>
           </div>
         </div>
 
-        <!-- NAV: rapi & tidak ada tulisan Ctrl+/ -->
-        <nav id="topnav" class="nav-scroller flex items-center gap-1">
+        <!-- Tombol hamburger (HP) -->
+        <button id="btnHamburger" class="btn md:hidden" aria-label="Buka menu" aria-expanded="false">☰</button>
+
+        <!-- Nav desktop -->
+        <nav id="topnav" class="hidden md:flex items-center gap-1">
           <a href="#/beranda" class="nav-link">Beranda</a>
           <a href="#/dosen" class="nav-link">Data Dosen</a>
           <a href="#/mahasiswa" class="nav-link">Data Mahasiswa</a>
@@ -97,10 +101,28 @@
           <a href="#/galeri" class="nav-link">Galeri</a>
           <a href="#/tentang" class="nav-link">Tentang</a>
           <span class="mx-2 text-gray-300 dark:text-gray-600 select-none">|</span>
-          <button id="btnDark" class="btn" title="Tema Gelap/Terang"><span id="iconTheme" aria-hidden="true">🌙</span><span class="sr-only">Toggle tema</span></button>
+          <button id="btnDark" class="btn" title="Tema Gelap/Terang"><span id="iconTheme" aria-hidden="true">🌙</span></button>
           <button id="btnLogin" class="btn primary">Login Admin</button>
           <button id="btnLogout" class="btn hidden">Logout</button>
         </nav>
+      </div>
+
+      <!-- Nav mobile -->
+      <div id="mobileMenu" class="md:hidden hidden pb-3">
+        <div class="flex flex-col gap-1">
+          <a href="#/beranda" class="nav-link">Beranda</a>
+          <a href="#/dosen" class="nav-link">Data Dosen</a>
+          <a href="#/mahasiswa" class="nav-link">Data Mahasiswa</a>
+          <a href="#/tendik" class="nav-link">Data Tendik</a>
+          <a href="#/laporan" class="nav-link">Laporan</a>
+          <a href="#/galeri" class="nav-link">Galeri</a>
+          <a href="#/tentang" class="nav-link">Tentang</a>
+          <div class="flex items-center gap-2 pt-2">
+            <button id="btnDarkM" class="btn w-full">🌙/☀️</button>
+            <button id="btnLoginM" class="btn primary w-full">Login</button>
+            <button id="btnLogoutM" class="btn w-full hidden">Logout</button>
+          </div>
+        </div>
       </div>
     </div>
   </header>
@@ -114,7 +136,7 @@
         <button id="btnExportJSON" class="btn">↓ JSON</button>
         <label class="btn cursor-pointer">↑ Impor JSON <input id="inputImport" type="file" accept="application/json" class="hidden"></label>
       </div>
-      <input id="quickSearch" type="search" placeholder="Cari cepat…" class="w-56 md:w-80 px-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-brand-500 dark:bg-transparent dark:border-gray-700" />
+      <input id="quickSearch" type="search" placeholder="Cari cepat…" class="w-44 sm:w-64 md:w-80 px-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-brand-500 dark:bg-transparent dark:border-gray-700" />
     </div>
   </div>
 
@@ -197,7 +219,7 @@
 
   <!-- Templates -->
   <template id="tpl-beranda">
-    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div class="card p-4"><div class="text-sm text-gray-600 dark:text-gray-400">Total Prestasi</div><div id="cardTotal" class="text-2xl font-semibold mt-1">0</div></div>
       <div class="card p-4"><div class="text-sm text-gray-600 dark:text-gray-400">Menunggu Validasi</div><div id="cardPending" class="text-2xl font-semibold mt-1">0</div></div>
       <div class="card p-4"><div class="text-sm text-gray-600 dark:text-gray-400">Disetujui</div><div id="cardApproved" class="text-2xl font-semibold mt-1">0</div></div>
@@ -212,7 +234,9 @@
       <div class="lg:col-span-2">
         <h3 class="text-lg font-semibold mt-6 mb-3">Rekap Singkat</h3>
         <div class="card p-4">
-          <canvas id="chartBeranda" height="140"></canvas>
+          <div class="relative h-64">
+            <canvas id="chartBeranda" class="absolute inset-0 w-full h-full"></canvas>
+          </div>
           <div id="chartBerandaFallback" class="hidden text-sm text-gray-600 dark:text-gray-400">Grafik fallback sederhana aktif (offline).</div>
         </div>
       </div>
@@ -234,7 +258,7 @@
       </div>
 
       <div class="card p-4">
-        <div class="grid grid-cols-1 md:grid-cols-5 gap-3 mb-3">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mb-3">
           <select id="filterJurusan" class="px-3 py-2 border rounded-xl dark:bg-transparent dark:border-gray-700"><option value="">Semua Jurusan</option><option>Matematika</option><option>Bioteknologi</option></select>
           <select id="filterProdi" class="px-3 py-2 border rounded-xl dark:bg-transparent dark:border-gray-700"><option value="">Semua Prodi</option><option>Matematika</option><option>Statistika</option><option>Aktuaria</option><option>Bioteknologi</option></select>
           <select id="filterTingkat" class="px-3 py-2 border rounded-xl dark:bg-transparent dark:border-gray-700"><option value="">Semua Tingkat</option><option>Lokal</option><option>Nasional</option><option>Internasional</option></select>
@@ -242,25 +266,27 @@
           <select id="pageSize" class="px-3 py-2 border rounded-xl dark:bg-transparent dark:border-gray-700" title="Baris per halaman"><option>10</option><option selected>15</option><option>25</option><option>50</option></select>
         </div>
 
-        <div class="table-wrap">
-          <table class="table text-sm">
-            <thead>
-              <tr>
-                <th class="sort" data-sort="tanggal">Tanggal</th>
-                <th class="sort" data-sort="nama">Nama</th>
-                <th class="sort" data-sort="kategori">Kategori</th>
-                <th class="sort" data-sort="judul">Prestasi</th>
-                <th class="sort" data-sort="tingkat">Tingkat</th>
-                <th class="sort" data-sort="jurusan">Jurusan</th>
-                <th class="sort" data-sort="prodi">Prodi</th>
-                <th class="sort" data-sort="tahun">Tahun</th>
-                <th class="sort" data-sort="status">Status</th>
-                <th>Link</th>
-                <th>Aksi</th>
-              </tr>
-            </thead>
-            <tbody id="tbodyData"></tbody>
-          </table>
+        <div class="table-wrap -mx-2 sm:mx-0">
+          <div class="min-w-full px-2">
+            <table class="table text-sm w-full">
+              <thead>
+                <tr>
+                  <th class="sort" data-sort="tanggal">Tanggal</th>
+                  <th class="sort" data-sort="nama">Nama</th>
+                  <th class="sort" data-sort="kategori">Kategori</th>
+                  <th class="sort" data-sort="judul">Prestasi</th>
+                  <th class="sort" data-sort="tingkat">Tingkat</th>
+                  <th class="sort" data-sort="jurusan">Jurusan</th>
+                  <th class="sort" data-sort="prodi">Prodi</th>
+                  <th class="sort" data-sort="tahun">Tahun</th>
+                  <th class="sort" data-sort="status">Status</th>
+                  <th>Link</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyData"></tbody>
+            </table>
+          </div>
         </div>
 
         <div class="flex items-center justify-between mt-3">
@@ -277,16 +303,28 @@
 
   <template id="tpl-laporan">
     <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <div class="card p-4"><h3 class="text-lg font-semibold mb-3">Rekap per Kategori</h3><canvas id="chartKategori" height="140"></canvas><div id="chartKategoriFallback" class="hidden text-sm text-gray-600 dark:text-gray-400">Grafik fallback (offline).</div></div>
-      <div class="card p-4"><h3 class="text-lg font-semibold mb-3">Rekap per Tingkat</h3><canvas id="chartTingkat" height="140"></canvas><div id="chartTingkatFallback" class="hidden text-sm text-gray-600 dark:text-gray-400">Grafik fallback (offline).</div></div>
-      <div class="card p-4 lg:col-span-2"><h3 class="text-lg font-semibold mb-3">Rekap per Tahun</h3><canvas id="chartTahun" height="140"></canvas><div id="chartTahunFallback" class="hidden text-sm text-gray-600 dark:text-gray-400">Grafik fallback (offline).</div></div>
+      <div class="card p-4">
+        <h3 class="text-lg font-semibold mb-3">Rekap per Kategori</h3>
+        <div class="relative h-64"><canvas id="chartKategori" class="absolute inset-0 w-full h-full"></canvas></div>
+        <div id="chartKategoriFallback" class="hidden text-sm text-gray-600 dark:text-gray-400">Grafik fallback (offline).</div>
+      </div>
+      <div class="card p-4">
+        <h3 class="text-lg font-semibold mb-3">Rekap per Tingkat</h3>
+        <div class="relative h-64"><canvas id="chartTingkat" class="absolute inset-0 w-full h-full"></canvas></div>
+        <div id="chartTingkatFallback" class="hidden text-sm text-gray-600 dark:text-gray-400">Grafik fallback (offline).</div>
+      </div>
+      <div class="card p-4 lg:col-span-2">
+        <h3 class="text-lg font-semibold mb-3">Rekap per Tahun</h3>
+        <div class="relative h-64"><canvas id="chartTahun" class="absolute inset-0 w-full h-full"></canvas></div>
+        <div id="chartTahunFallback" class="hidden text-sm text-gray-600 dark:text-gray-400">Grafik fallback (offline).</div>
+      </div>
     </section>
   </template>
 
   <template id="tpl-galeri">
     <section>
       <h3 class="text-lg font-semibold mb-3">Galeri Penyerahan Hadiah</h3>
-      <div id="gridGaleri" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+      <div id="gridGaleri" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"></div>
       <p id="galeriKosong" class="text-sm text-gray-600 dark:text-gray-400 hidden mt-2">Belum ada foto yang diunggah.</p>
     </section>
   </template>
@@ -335,7 +373,7 @@ const THEME_KEY='prestasi_theme';
 byId('year').textContent=new Date().getFullYear();
 function showToast(msg,type='info',ms=2500){const t=byId('toast');const el=document.createElement('div');el.className='toast-item';el.style.background=type==='error'?'#991b1b':(type==='success'?'#14532d':'#111827');el.textContent=msg;t.appendChild(el);setTimeout(()=>el.remove(),ms);}
 
-/* ===== Tema: persist & bekerja offline ===== */
+/* ===== Tema ===== */
 function setTheme(mode){
   if(mode==='dark'){ document.documentElement.classList.add('dark'); localStorage.setItem(THEME_KEY,'dark'); $('#iconTheme').textContent='☀️'; }
   else { document.documentElement.classList.remove('dark'); localStorage.setItem(THEME_KEY,'light'); $('#iconTheme').textContent='🌙'; }
@@ -348,23 +386,44 @@ function setTheme(mode){
 })();
 byId('btnDark').onclick=()=>setTheme(document.documentElement.classList.contains('dark')?'light':'dark');
 
+/* ===== Hamburger & nav klik (mobile) ===== */
+const btnHamb = byId('btnHamburger');
+const mobileMenu = byId('mobileMenu');
+btnHamb.addEventListener('click', ()=>{
+  const open = mobileMenu.classList.toggle('hidden') === false;
+  btnHamb.setAttribute('aria-expanded', open ? 'true' : 'false');
+});
+document.addEventListener('click', (e)=>{
+  const a = e.target.closest('a.nav-link');
+  if(!a) return;
+  const href = a.getAttribute('href'); if(!href || !href.startsWith('#/')) return;
+  e.preventDefault();
+  if(location.hash !== href){ location.hash = href; } else { router(); }
+  mobileMenu.classList.add('hidden'); btnHamb.setAttribute('aria-expanded','false');
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
 /* ===== Admin ===== */
 function isAdmin(){return localStorage.getItem(ADMIN_KEY)==='1'}
-function setAdmin(v){v?localStorage.setItem(ADMIN_KEY,'1'):localStorage.removeItem(ADMIN_KEY);updateAuthUI();}
-function updateAuthUI(){byId('btnLogin').classList.toggle('hidden',isAdmin());byId('btnLogout').classList.toggle('hidden',!isAdmin());}
+function setAdmin(v){v?localStorage.setItem(ADMIN_KEY,'1'):localStorage.removeItem(ADMIN_KEY);updateAuthUI();render();}
+function updateAuthUI(){
+  const adm=isAdmin();
+  byId('btnLogin').classList.toggle('hidden',adm);
+  byId('btnLogout').classList.toggle('hidden',!adm);
+  const mLogin=byId('btnLoginM'), mLogout=byId('btnLogoutM');
+  if(mLogin) mLogin.classList.toggle('hidden',adm);
+  if(mLogout) mLogout.classList.toggle('hidden',!adm);
+}
 updateAuthUI();
 byId('btnLogin').onclick=()=>openModal('modalLogin');
-byId('btnLogout').onclick=()=>{setAdmin(false);showToast('Logout berhasil','success');render();}
+byId('btnLogout').onclick=()=>{setAdmin(false);showToast('Logout berhasil','success');}
 
 /* ===== Data & Migrasi Dummy ===== */
 function baseDummy(){
   return [
-    // Mahasiswa
     {id:uid(),kategori:'Mahasiswa',nama:'Siti Rahma',judul:'Juara 1 Lomba KTI',tingkat:'Nasional',jurusan:'Matematika',prodi:'Statistika',tahun:2025,tanggal:'2025-07-14',status:'Disetujui',keterangan:'LKTI Data Sains',linkSertifikat:'',pdfDataURL:'',fotoDataURL:''},
     {id:uid(),kategori:'Mahasiswa',nama:'Irfan Hidayat',judul:'Juara 2 Data Analytics',tingkat:'Internasional',jurusan:'Matematika',prodi:'Statistika',tahun:2025,tanggal:'2025-08-01',status:'Menunggu Validasi',keterangan:'Python + ML',linkSertifikat:'',pdfDataURL:'',fotoDataURL:''},
-    // Dosen
     {id:uid(),kategori:'Dosen',nama:'Dr. Rina Putri',judul:'Hak Cipta Modul Bioteknologi',tingkat:'Nasional',jurusan:'Bioteknologi',prodi:'Bioteknologi',tahun:2025,tanggal:'2025-03-07',status:'Disetujui',keterangan:'',linkSertifikat:'',pdfDataURL:'',fotoDataURL:''},
-    // Tendik
     {id:uid(),kategori:'Tenaga Kependidikan',nama:'Andi Pratama',judul:'Operator Terbaik SIMAK',tingkat:'Lokal',jurusan:'Matematika',prodi:'Matematika',tahun:2025,tanggal:'2025-04-18',status:'Disetujui',keterangan:'Layanan akademik',linkSertifikat:'',pdfDataURL:'',fotoDataURL:''},
     {id:uid(),kategori:'Tenaga Kependidikan',nama:'Nurlina',judul:'Pelatihan Arsip Nasional (ANRI)',tingkat:'Nasional',jurusan:'Bioteknologi',prodi:'Bioteknologi',tahun:2024,tanggal:'2024-10-05',status:'Menunggu Validasi',keterangan:'Sertifikat pelatihan',linkSertifikat:'',pdfDataURL:'',fotoDataURL:''},
   ];
@@ -374,12 +433,11 @@ function loadData(){
   let d=[];
   if(!raw){ d = baseDummy(); saveData(d); return d; }
   try{ d = JSON.parse(raw)||[] }catch{ d=[] }
-  // MIGRASI/INJEKSI: pastikan setiap kategori punya minimal 1 data agar grafik/tabel terlihat
   const needCat = (cat)=> d.some(x=>x.kategori===cat);
-  let changed=false;
-  if(!needCat('Mahasiswa')){ d.push({id:uid(),kategori:'Mahasiswa',nama:'Contoh Mahasiswa',judul:'Finalis PKM',tingkat:'Lokal',jurusan:'Matematika',prodi:'Matematika',tahun:new Date().getFullYear(),tanggal:new Date().toISOString().slice(0,10),status:'Menunggu Validasi',keterangan:'Dummy auto',linkSertifikat:'',pdfDataURL:'',fotoDataURL:''}); changed=true; }
-  if(!needCat('Dosen')){ d.push({id:uid(),kategori:'Dosen',nama:'Contoh Dosen',judul:'Publikasi Jurnal Nasional',tingkat:'Nasional',jurusan:'Bioteknologi',prodi:'Bioteknologi',tahun:new Date().getFullYear(),tanggal:new Date().toISOString().slice(0,10),status:'Disetujui',keterangan:'Dummy auto',linkSertifikat:'',pdfDataURL:'',fotoDataURL:''}); changed=true; }
-  if(!needCat('Tenaga Kependidikan')){ d.push({id:uid(),kategori:'Tenaga Kependidikan',nama:'Contoh Tendik',judul:'Pelayanan Terbaik',tingkat:'Lokal',jurusan:'Matematika',prodi:'Statistika',tahun:new Date().getFullYear(),tanggal:new Date().toISOString().slice(0,10),status:'Disetujui',keterangan:'Dummy auto',linkSertifikat:'',pdfDataURL:'',fotoDataURL:''}); changed=true; }
+  let changed=false, now=new Date().toISOString().slice(0,10), yr=new Date().getFullYear();
+  if(!needCat('Mahasiswa')){ d.push({id:uid(),kategori:'Mahasiswa',nama:'Contoh Mahasiswa',judul:'Finalis PKM',tingkat:'Lokal',jurusan:'Matematika',prodi:'Matematika',tahun:yr,tanggal:now,status:'Menunggu Validasi',keterangan:'Dummy auto',linkSertifikat:'',pdfDataURL:'',fotoDataURL:''}); changed=true; }
+  if(!needCat('Dosen')){ d.push({id:uid(),kategori:'Dosen',nama:'Contoh Dosen',judul:'Publikasi Jurnal Nasional',tingkat:'Nasional',jurusan:'Bioteknologi',prodi:'Bioteknologi',tahun:yr,tanggal:now,status:'Disetujui',keterangan:'Dummy auto',linkSertifikat:'',pdfDataURL:'',fotoDataURL:''}); changed=true; }
+  if(!needCat('Tenaga Kependidikan')){ d.push({id:uid(),kategori:'Tenaga Kependidikan',nama:'Contoh Tendik',judul:'Pelayanan Terbaik',tingkat:'Lokal',jurusan:'Matematika',prodi:'Statistika',tahun:yr,tanggal:now,status:'Disetujui',keterangan:'Dummy auto',linkSertifikat:'',pdfDataURL:'',fotoDataURL:''}); changed=true; }
   if(changed) saveData(d);
   return d;
 }
@@ -389,7 +447,7 @@ let DATA=loadData();
 /* ===== Router ===== */
 function setActiveNav(){
   const h = location.hash || '#/beranda';
-  $$('#topnav a.nav-link').forEach(a=>a.classList.toggle('nav-active', a.getAttribute('href')===h));
+  $$('#topnav a.nav-link, #mobileMenu a.nav-link').forEach(a=>a.classList.toggle('nav-active', a.getAttribute('href')===h));
 }
 function router(){
   const h=location.hash||'#/beranda';
@@ -410,7 +468,7 @@ function openModal(id){byId(id).classList.remove('hidden')}
 function closeModal(id){byId(id).classList.add('hidden')}
 function uid(){return 'id-'+Math.random().toString(36).slice(2,9)+Date.now().toString(36)}
 
-/* ===== Pencarian cepat (shortcut tetap aktif meski teks bantuan dihapus) ===== */
+/* ===== Pencarian cepat ===== */
 const quickSearch=byId('quickSearch');
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='/'){e.preventDefault();quickSearch.focus();}});
 quickSearch.addEventListener('input',()=>render());
@@ -477,7 +535,6 @@ function renderBeranda(){
     list.appendChild(div);
   });
 
-  // Kategori dinamis
   const categories = Array.from(new Set(DATA.map(x => x.kategori))).sort();
   const catData = categories.map(c => DATA.filter(x => x.kategori === c).length);
   const ctx = byId('chartBeranda').getContext('2d');
@@ -485,7 +542,7 @@ function renderBeranda(){
     byId('chartBerandaFallback').classList.remove('hidden');
     drawFallbackBar(ctx, categories, catData);
   }else{
-    new Chart(ctx,{type:'bar',data:{labels:categories,datasets:[{label:'Jumlah',data:catData}]},options:{responsive:true,plugins:{legend:{display:false}}}});
+    new Chart(ctx,{type:'bar',data:{labels:categories,datasets:[{label:'Jumlah',data:catData,backgroundColor:'#6b8cff'}]},options:{responsive:true,plugins:{legend:{display:false}},maintainAspectRatio:false}});
   }
 }
 
@@ -574,7 +631,8 @@ function renderTabel(forKategori){
 }
 
 function renderLaporan(){
-  const root=byId('app'); root.innerHTML=''; root.appendChild(byId('tpl-laporan').content.cloneNode(true));
+  const root=byId('app'); root.innerHTML='';
+  root.appendChild(byId('tpl-laporan').content.cloneNode(true));
   const cat=groupCount(DATA,'kategori'), lvl=groupCount(DATA,'tingkat'), th=groupCount(DATA,'tahun');
   makeChartOrFallback('chartKategori','chartKategoriFallback','pie',Object.keys(cat),Object.values(cat));
   makeChartOrFallback('chartTingkat','chartTingkatFallback','bar',Object.keys(lvl),Object.values(lvl));
@@ -604,18 +662,27 @@ function lightbox(src,cap=''){const wrap=document.createElement('div');wrap.clas
 
 function renderTentang(){const root=byId('app'); root.innerHTML=''; root.appendChild(byId('tpl-tentang').content.cloneNode(true));}
 
-/* ===== Helpers & Charts ===== */
+/* ===== Helpers & Charts (fallback) ===== */
 function esc(s=''){return s.replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
 function fmtDate(d){if(!d)return'-';const dd=new Date(d);if(isNaN(dd))return d;return dd.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'});}
 function groupCount(a,k){return a.reduce((m,c)=>(m[c[k]]=(m[c[k]]||0)+1,m),{});}
-function makeChartOrFallback(id,fid,type,labels,data){const ctx=byId(id).getContext('2d');if(window.__chartOffline||typeof Chart==='undefined'){byId(fid).classList.remove('hidden'); if(type==='pie')drawFallbackPie(ctx,labels,data); else if(type==='line')drawFallbackLine(ctx,labels,data); else drawFallbackBar(ctx,labels,data);} else{new Chart(ctx,{type,data:{labels,datasets:[{label:'Jumlah',data}]},options:{responsive:true,plugins:{legend:{display:type!=='bar'}}}})}}
-function drawFallbackBar(ctx,labels,data){const W=ctx.canvas.width,H=ctx.canvas.height,max=Math.max(1,...data),n=labels.length,p=20,g=10,bw=(W-p*2-g*(n-1))/n;const c=ctx;c.clearRect(0,0,W,H);c.fillStyle='#6b8cff';labels.forEach((lb,i)=>{const h=(H-p*2)*(data[i]/max);const x=p+i*(bw+g),y=H-p-h;c.fillRect(x,y,bw,h);c.fillStyle='#666';c.fillText(lb,x,H-5);c.fillStyle='#6b8cff';});}
-function drawFallbackPie(ctx,labels,data){const W=ctx.canvas.width,H=ctx.canvas.height,r=Math.min(W,H)/2-10,cx=W/2,cy=H/2,total=data.reduce((a,b)=>a+b,0)||1,c=ctx;c.clearRect(0,0,W,H);let st=0;labels.forEach((lb,i)=>{const ang=(data[i]/total)*Math.PI*2;c.beginPath();c.moveTo(cx,cy);c.fillStyle=i%2?'#6b8cff':'#9a7bff';c.arc(cx,cy,r,st,st+ang);c.closePath();c.fill();st+=ang;});}
+function makeChartOrFallback(id,fid,type,labels,data){
+  const ctx=byId(id).getContext('2d');
+  if(window.__chartOffline||typeof Chart==='undefined'){
+    byId(fid).classList.remove('hidden');
+    if(type==='pie')drawFallbackPie(ctx,labels,data); else if(type==='line')drawFallbackLine(ctx,labels,data); else drawFallbackBar(ctx,labels,data);
+  } else {
+    const optsCommon={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:type!=='bar'}}};
+    const ds = type==='pie' ? [{data,backgroundColor:['#22c55e','#3b82f6','#f59e0b']}] : [{label:'Jumlah',data,backgroundColor:'#6b8cff'}];
+    new Chart(ctx,{type,data:{labels,datasets:ds},options:optsCommon});
+  }
+}
+function drawFallbackBar(ctx,labels,data){const W=ctx.canvas.width,H=ctx.canvas.height,max=Math.max(1,...data),p=20,g=10,n=labels.length,bw=(W-p*2-g*(n-1))/n;const c=ctx;c.clearRect(0,0,W,H);c.fillStyle='#6b8cff';labels.forEach((lb,i)=>{const h=(H-p*2)*(data[i]/max);const x=p+i*(bw+g),y=H-p-h;c.fillRect(x,y,bw,h);});}
+function drawFallbackPie(ctx,labels,data){const W=ctx.canvas.width,H=ctx.canvas.height,r=Math.min(W,H)/2-10,cx=W/2,cy=H/2,total=data.reduce((a,b)=>a+b,0)||1,c=ctx;c.clearRect(0,0,W,H);let st=0;['#22c55e','#3b82f6','#f59e0b'].forEach((col,i)=>{const v=data[i]??0;const ang=(v/total)*Math.PI*2;c.beginPath();c.moveTo(cx,cy);c.fillStyle=col;c.arc(cx,cy,r,st,st+ang);c.closePath();c.fill();st+=ang;});}
 function drawFallbackLine(ctx,labels,data){const W=ctx.canvas.width,H=ctx.canvas.height,p=20,max=Math.max(1,...data),min=0,n=labels.length,c=ctx;c.clearRect(0,0,W,H);c.strokeStyle='#6b8cff';c.lineWidth=2;c.beginPath();labels.forEach((lb,i)=>{const x=p+i*((W-2*p)/Math.max(1,n-1)),y=H-p-((data[i]-min)/(max-min))*(H-2*p);if(i===0)c.moveTo(x,y);else c.lineTo(x,y);});c.stroke();}
 
 /* ===== Inisialisasi ===== */
 byId('btnExportCSV').title='Ekspor ke CSV';byId('btnExportJSON').title='Ekspor ke JSON';byId('btnAdd').title='Tambah prestasi';byId('btnLogin').title='Login admin (demo)';byId('btnLogout').title='Logout admin';
-$$('#topnav a').forEach(a=>a.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'})));
 router();
   </script>
 </body>

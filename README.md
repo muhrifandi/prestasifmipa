@@ -1,12 +1,12 @@
-# Sistem Data Prestasi FMIPA Unsulbar
+# Sistem Data Prestasi FMIPA Unsulbar (Mobile Friendly)
 
-Website SPA (Single Page Application) untuk mendata prestasi Dosen, Mahasiswa, dan Tenaga Kependidikan FMIPA Universitas Sulawesi Barat.
+Versi ini sudah dioptimalkan untuk tampilan mobile (responsive).
 
-## Cara Deploy ke GitHub Pages
+## Cara Upload ke GitHub Pages
 1. Buat repository baru di GitHub.
-2. Upload semua file dari folder ini ke repository (index.html, dll).
+2. Upload semua file dari folder ini ke repository.
 3. Aktifkan GitHub Pages di Settings → Pages → Source: main / root.
-4. Website dapat diakses di https://username.github.io/nama-repo/
+4. Website akan dapat diakses di https://username.github.io/nama-repo/
 
 ---
 Website ini berjalan tanpa backend, semua data tersimpan di localStorage browser.
