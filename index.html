@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sistem Data Prestasi | FMIPA Unsulbar</title>
+  <meta name="description" content="Sistem Data Prestasi Dosen, Mahasiswa, dan Tenaga Kependidikan (Tendik) FMIPA Unsulbar - SPA Offline/Online">
+
+  <!-- Favicon default; akan diganti menjadi logo saat logo berhasil dimuat -->
+  <link id="favicon" rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="%2324346c"/><text x="50%25" y="58%25" text-anchor="middle" font-family="Arial" font-size="16" fill="white">FM</text></svg>' />
+
+  <!-- Tailwind CONFIG (HARUS sebelum CDN) -->
+  <script>
+    /* Konfigurasi Tailwind untuk tema & warna brand */
+    window.tailwind = window.tailwind || {};
+    window.tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: { brand:{50:'#f6f7ff',500:'#6b8cff',600:'#5a79f0',700:'#4459c4'} },
+          boxShadow: { soft:'0 10px 30px rgba(0,0,0,.08)' }
+        }
+      }
+    };
+  </script>
+  <!-- Tailwind + Chart.js via CDN; jika gagal, aktifkan fallback -->
+  <script src="https://cdn.tailwindcss.com" onerror="document.documentElement.dataset.tw='off'"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" onerror="window.__chartOffline=true"></script>
+
+  <!-- Fallback CSS (sederhana) & dukungan dark-mode saat Tailwind OFF -->
+  <style>
+    :root { --bg:#f9fafb; --fg:#111827; --card:#ffffff; --border:#e5e7eb; }
+    html.dark { --bg:#0b1020; --fg:#e5e7eb; --card:#0b1020; --border:#374151; }
+    [data-tw="off"] body{background:var(--bg);color:var(--fg)}
+    [data-tw="off"] header,[data-tw="off"] .toolbar{background:var(--card);border-bottom:1px solid var(--border)}
+    [data-tw="off"] .container{max-width:1200px;margin:0 auto;padding:0 1rem}
+    [data-tw="off"] .hidden{display:none} [data-tw="off"] .flex{display:flex}
+    [data-tw="off"] .items-center{align-items:center} [data-tw="off"] .justify-between{justify-content:space-between}
+    [data-tw="off"] .gap-1{gap:.25rem} [data-tw="off"] .gap-2{gap:.5rem} [data-tw="off"] .gap-3{gap:.75rem}
+    [data-tw="off"] .p-2{padding:.5rem} [data-tw="off"] .p-3{padding:.75rem} [data-tw="off"] .p-4{padding:1rem}
+    [data-tw="off"] .px-3{padding:0 .75rem} [data-tw="off"] .px-4{padding:0 1rem} [data-tw="off"] .py-2{padding:.5rem 0}
+    [data-tw="off"] .rounded-xl{border-radius:1rem} [data-tw="off"] .rounded-2xl{border-radius:1.25rem}
+    [data-tw="off"] .w-full{width:100%}
+    [data-tw="off"] .text-sm{font-size:.875rem} [data-tw="off"] .text-lg{font-size:1.125rem} [data-tw="off"] .text-xl{font-size:1.25rem}
+    .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem .9rem;border-radius:.8rem;border:1px solid rgba(0,0,0,.06);background:#fff}
+    html.dark .btn{background:transparent;border-color:var(--border)}
+    .btn.primary{background:#6b8cff;color:#fff;border-color:transparent}
+    .btn.warn{background:#f59e0b;color:#111827;border-color:transparent}
+    .btn.danger{background:#ef4444;color:#fff;border-color:transparent}
+    .chip{border:1px solid rgba(107,140,255,.35);padding:.35rem .6rem;border-radius:999px;font-size:.825rem}
+    .chip.active{background:rgba(107,140,255,.15)}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:1.25rem;box-shadow:0 10px 30px rgba(31,41,55,.05)}
+    .badge{padding:.25rem .5rem;border-radius:.5rem;font-size:.75rem}
+    .badge.wait{background:#fef3c7;color:#92400e}.badge.ok{background:#dcfce7;color:#14532d}.badge.no{background:#fee2e2;color:#991b1b}
+    .toast{position:fixed;right:1rem;bottom:1rem;display:flex;flex-direction:column;gap:.5rem;z-index:60}
+    .toast-item{background:#111827;color:#fff;padding:.75rem 1rem;border-radius:.75rem;box-shadow:0 8px 30px rgba(0,0,0,.25)}
+    .table-wrap{overflow:auto}.table{width:100%;border-collapse:separate;border-spacing:0}
+    .table th,.table td{padding:.65rem .75rem;border-bottom:1px solid var(--border);vertical-align:top}
+    .table th{font-weight:600;white-space:nowrap;position:sticky;top:0;background:var(--card);z-index:1}
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:1rem;z-index:50}
+    .modal-card{background:var(--card);border:1px solid var(--border);max-height:90vh;overflow:auto;border-radius:1.25rem}
+    /* Navbar rapi: satu baris, bisa geser horizontal bila sempit */
+    .nav-scroller{overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+    .nav-scroller::-webkit-scrollbar{display:none}
+    .nav-link{white-space:nowrap;padding:.5rem .75rem;border-radius:.75rem}
+    .nav-link:hover{background:rgba(107,140,255,.12)}
+    .nav-active{color:#6b8cff;font-weight:700;background:rgba(107,140,255,.12)}
+    .brand-grad { background:linear-gradient(135deg,#6b8cff,#9a7bff); -webkit-background-clip:text;background-clip:text;color:transparent; }
+  </style>
+</head>
+<body class="min-h-screen bg-gray-50 text-gray-900 transition-colors duration-200 dark:bg-[#0b1020] dark:text-gray-100">
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+  <!-- Header -->
+  <header class="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-gray-200 dark:bg-[#0b1020]/80 dark:border-gray-700">
+    <div class="container max-w-screen-xl mx-auto px-4">
+      <div class="flex items-center justify-between py-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <!-- Logo (akan di-set dinamis) -->
+          <img id="logoImg" alt="Logo Unsulbar" class="w-10 h-10 rounded-xl object-contain border border-gray-200 dark:border-gray-700 shadow-inner" />
+          <div class="truncate">
+            <h1 class="text-lg font-semibold">
+              Sistem Data Prestasi <span class="brand-grad">FMIPA</span>
+            </h1>
+            <p class="text-sm text-gray-600 dark:text-gray-400">Universitas Sulawesi Barat</p>
+          </div>
+        </div>
+
+        <!-- NAV: rapi & tidak ada tulisan Ctrl+/ -->
+        <nav id="topnav" class="nav-scroller flex items-center gap-1">
+          <a href="#/beranda" class="nav-link">Beranda</a>
+          <a href="#/dosen" class="nav-link">Data Dosen</a>
+          <a href="#/mahasiswa" class="nav-link">Data Mahasiswa</a>
+          <a href="#/tendik" class="nav-link">Data Tendik</a>
+          <a href="#/laporan" class="nav-link">Laporan</a>
+          <a href="#/galeri" class="nav-link">Galeri</a>
+          <a href="#/tentang" class="nav-link">Tentang</a>
+          <span class="mx-2 text-gray-300 dark:text-gray-600 select-none">|</span>
+          <button id="btnDark" class="btn" title="Tema Gelap/Terang"><span id="iconTheme" aria-hidden="true">🌙</span><span class="sr-only">Toggle tema</span></button>
+          <button id="btnLogin" class="btn primary">Login Admin</button>
+          <button id="btnLogout" class="btn hidden">Logout</button>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- Toolbar -->
+  <div class="toolbar border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0b1020]">
+    <div class="container max-w-screen-xl mx-auto px-4 py-3 flex flex-wrap items-center gap-2 justify-between">
+      <div class="flex items-center gap-2">
+        <button id="btnAdd" class="btn primary">➕ Tambah Prestasi</button>
+        <button id="btnExportCSV" class="btn">↓ CSV</button>
+        <button id="btnExportJSON" class="btn">↓ JSON</button>
+        <label class="btn cursor-pointer">↑ Impor JSON <input id="inputImport" type="file" accept="application/json" class="hidden"></label>
+      </div>
+      <input id="quickSearch" type="search" placeholder="Cari cepat…" class="w-56 md:w-80 px-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-brand-500 dark:bg-transparent dark:border-gray-700" />
+    </div>
+  </div>
+
+  <!-- Root -->
+  <main id="app" class="container max-w-screen-xl mx-auto px-4 py-6 space-y-6"></main>
+
+  <footer class="mt-10 border-t border-gray-200 dark:border-gray-700 py-6 text-sm text-gray-600 dark:text-gray-400">
+    <div class="container max-w-screen-xl mx-auto px-4 flex items-center justify-between">
+      <div>© <span id="year"></span> FMIPA Unsulbar • Sistem Data Prestasi</div>
+      <div>Tema: 🌙/☀️ • Ekspor/Impor JSON/CSV</div>
+    </div>
+  </footer>
+
+  <!-- Modal Tambah/Edit -->
+  <div id="modalForm" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-card w-full max-w-2xl p-4">
+      <div class="flex items-center justify-between mb-3">
+        <h3 id="modalTitle" class="text-lg font-semibold">Tambah Prestasi</h3>
+        <button class="btn" onclick="closeModal('modalForm')">✖</button>
+      </div>
+      <form id="formPrestasi" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div><label class="text-sm font-medium">Kategori <span class="text-red-500">*</span></label>
+          <select name="kategori" required class="w-full px-3 py-2 border rounded-xl dark:bg-transparent dark:border-gray-700">
+            <option value="">- pilih -</option>
+            <option>Mahasiswa</option>
+            <option>Dosen</option>
+            <option>Tenaga Kependidikan</option>
+          </select></div>
+        <div><label class="text-sm font-medium">Nama <span class="text-red-500">*</span></label>
+          <input name="nama" required class="w-full px-3 py-2 border rounded-xl dark:bg-transparent dark:border-gray-700" placeholder="Nama lengkap"></div>
+        <div class="md:col-span-2"><label class="text-sm font-medium">Prestasi / Kegiatan <span class="text-red-500">*</span></label>
+          <input name="judul" required class="w-full px-3 py-2 border rounded-xl dark:bg-transparent dark:border-gray-700" placeholder="Judul prestasi / lomba / publikasi"></div>
+        <div><label class="text-sm font-medium">Tingkat</label>
+          <select name="tingkat" class="w-full px-3 py-2 border rounded-xl dark:bg-transparent dark:border-gray-700"><option>Lokal</option><option>Nasional</option><option>Internasional</option></select></div>
+        <div><label class="text-sm font-medium">Jurusan</label>
+          <select name="jurusan" class="w-full px-3 py-2 border rounded-xl dark:bg-transparent dark:border-gray-700"><option>Matematika</option><option>Bioteknologi</option></select></div>
+        <div><label class="text-sm font-medium">Program Studi</label>
+          <select name="prodi" class="w-full px-3 py-2 border rounded-xl dark:bg-transparent dark:border-gray-700"><option>Matematika</option><option>Statistika</option><option>Aktuaria</option><option>Bioteknologi</option></select></div>
+        <div><label class="text-sm font-medium">Tahun</label>
+          <input name="tahun" type="number" min="2000" max="2100" value="2025" class="w-full px-3 py-2 border rounded-xl dark:bg-transparent dark:border-gray-700"></div>
+        <div><label class="text-sm font-medium">Tanggal</label>
+          <input name="tanggal" type="date" class="w-full px-3 py-2 border rounded-xl dark:bg-transparent dark:border-gray-700"></div>
+        <div class="md:col-span-2"><label class="text-sm font-medium">Link Sertifikat (URL)</label>
+          <input name="linkSertifikat" type="url" placeholder="https://..." class="w-full px-3 py-2 border rounded-xl dark:bg-transparent dark:border-gray-700"></div>
+        <div class="md:col-span-2"><label class="text-sm font-medium">Unggah Sertifikat (PDF)</label>
+          <input name="pdfSertifikat" type="file" accept="application/pdf" class="w-full px-3 py-2 border rounded-xl bg-white dark:bg-transparent dark:border-gray-700">
+          <p class="text-xs text-gray-500 mt-1">PDF disimpan lokal (Data URL) dan ikut di ekspor/impor JSON.</p></div>
+        <div class="md:col-span-2"><label class="text-sm font-medium">Foto Penyerahan Hadiah (JPG/PNG)</label>
+          <input name="fotoPenyerahan" type="file" accept="image/*" class="w-full px-3 py-2 border rounded-xl bg-white dark:bg-transparent dark:border-gray-700"></div>
+        <div><label class="text-sm font-medium">Status</label>
+          <input name="status" value="Menunggu Validasi" readonly class="w-full px-3 py-2 border rounded-xl bg-gray-100 dark:bg-gray-800 dark:border-gray-700"></div>
+        <div class="md:col-span-2"><label class="text-sm font-medium">Keterangan</label>
+          <textarea name="keterangan" rows="3" class="w-full px-3 py-2 border rounded-xl dark:bg-transparent dark:border-gray-700" placeholder="Opsional"></textarea></div>
+        <div class="md:col-span-2 flex items-center justify-end gap-2 pt-2">
+          <button type="button" class="btn" onclick="closeModal('modalForm')">Batal</button>
+          <button type="submit" class="btn primary">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Login -->
+  <div id="modalLogin" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+    <div class="modal-card w-full max-w-sm p-4">
+      <div class="flex items-center justify-between mb-3">
+        <h3 id="loginTitle" class="text-lg font-semibold">Login Admin</h3>
+        <button class="btn" onclick="closeModal('modalLogin')">✖</button>
+      </div>
+      <form id="formLogin" class="space-y-3">
+        <div><label class="text-sm font-medium">Username</label><input name="username" required class="w-full px-3 py-2 border rounded-xl dark:bg-transparent dark:border-gray-700" placeholder="admin"></div>
+        <div><label class="text-sm font-medium">Password</label><input name="password" type="password" required class="w-full px-3 py-2 border rounded-xl dark:bg-transparent dark:border-gray-700" placeholder="admin123"></div>
+        <div class="flex items-center justify-end gap-2 pt-2">
+          <button type="button" class="btn" onclick="closeModal('modalLogin')">Batal</button>
+          <button type="submit" class="btn primary">Masuk</button>
+        </div>
+      </form>
+      <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">Demo: admin / admin123</p>
+    </div>
+  </div>
+
+  <!-- Templates -->
+  <template id="tpl-beranda">
+    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="card p-4"><div class="text-sm text-gray-600 dark:text-gray-400">Total Prestasi</div><div id="cardTotal" class="text-2xl font-semibold mt-1">0</div></div>
+      <div class="card p-4"><div class="text-sm text-gray-600 dark:text-gray-400">Menunggu Validasi</div><div id="cardPending" class="text-2xl font-semibold mt-1">0</div></div>
+      <div class="card p-4"><div class="text-sm text-gray-600 dark:text-gray-400">Disetujui</div><div id="cardApproved" class="text-2xl font-semibold mt-1">0</div></div>
+      <div class="card p-4"><div class="text-sm text-gray-600 dark:text-gray-400">Ditolak</div><div id="cardRejected" class="text-2xl font-semibold mt-1">0</div></div>
+    </section>
+
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="lg:col-span-1">
+        <h3 class="text-lg font-semibold mt-6 mb-3">Prestasi Terbaru</h3>
+        <div id="listTerbaru" class="space-y-3"></div>
+      </div>
+      <div class="lg:col-span-2">
+        <h3 class="text-lg font-semibold mt-6 mb-3">Rekap Singkat</h3>
+        <div class="card p-4">
+          <canvas id="chartBeranda" height="140"></canvas>
+          <div id="chartBerandaFallback" class="hidden text-sm text-gray-600 dark:text-gray-400">Grafik fallback sederhana aktif (offline).</div>
+        </div>
+      </div>
+    </section>
+  </template>
+
+  <template id="tpl-tabel">
+    <section>
+      <div class="flex flex-wrap items-center gap-2 mb-3">
+        <button class="chip" data-chip data-chip-level="All">Semua Tingkat</button>
+        <button class="chip" data-chip data-chip-level="Lokal">Lokal</button>
+        <button class="chip" data-chip data-chip-level="Nasional">Nasional</button>
+        <button class="chip" data-chip data-chip-level="Internasional">Internasional</button>
+        <span class="mx-1 text-gray-300 dark:text-gray-600">|</span>
+        <button class="chip" data-chip data-chip-status="All">Semua Status</button>
+        <button class="chip" data-chip data-chip-status="Menunggu Validasi">Menunggu</button>
+        <button class="chip" data-chip data-chip-status="Disetujui">Disetujui</button>
+        <button class="chip" data-chip data-chip-status="Ditolak">Ditolak</button>
+      </div>
+
+      <div class="card p-4">
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-3 mb-3">
+          <select id="filterJurusan" class="px-3 py-2 border rounded-xl dark:bg-transparent dark:border-gray-700"><option value="">Semua Jurusan</option><option>Matematika</option><option>Bioteknologi</option></select>
+          <select id="filterProdi" class="px-3 py-2 border rounded-xl dark:bg-transparent dark:border-gray-700"><option value="">Semua Prodi</option><option>Matematika</option><option>Statistika</option><option>Aktuaria</option><option>Bioteknologi</option></select>
+          <select id="filterTingkat" class="px-3 py-2 border rounded-xl dark:bg-transparent dark:border-gray-700"><option value="">Semua Tingkat</option><option>Lokal</option><option>Nasional</option><option>Internasional</option></select>
+          <select id="filterStatus" class="px-3 py-2 border rounded-xl dark:bg-transparent dark:border-gray-700"><option value="">Semua Status</option><option>Menunggu Validasi</option><option>Disetujui</option><option>Ditolak</option></select>
+          <select id="pageSize" class="px-3 py-2 border rounded-xl dark:bg-transparent dark:border-gray-700" title="Baris per halaman"><option>10</option><option selected>15</option><option>25</option><option>50</option></select>
+        </div>
+
+        <div class="table-wrap">
+          <table class="table text-sm">
+            <thead>
+              <tr>
+                <th class="sort" data-sort="tanggal">Tanggal</th>
+                <th class="sort" data-sort="nama">Nama</th>
+                <th class="sort" data-sort="kategori">Kategori</th>
+                <th class="sort" data-sort="judul">Prestasi</th>
+                <th class="sort" data-sort="tingkat">Tingkat</th>
+                <th class="sort" data-sort="jurusan">Jurusan</th>
+                <th class="sort" data-sort="prodi">Prodi</th>
+                <th class="sort" data-sort="tahun">Tahun</th>
+                <th class="sort" data-sort="status">Status</th>
+                <th>Link</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyData"></tbody>
+          </table>
+        </div>
+
+        <div class="flex items-center justify-between mt-3">
+          <div id="infoPage" class="text-sm text-gray-600 dark:text-gray-400"></div>
+          <div class="flex items-center gap-2">
+            <button id="prevPage" class="btn">‹</button>
+            <span id="pageNow" class="px-2"></span>
+            <button id="nextPage" class="btn">›</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </template>
+
+  <template id="tpl-laporan">
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="card p-4"><h3 class="text-lg font-semibold mb-3">Rekap per Kategori</h3><canvas id="chartKategori" height="140"></canvas><div id="chartKategoriFallback" class="hidden text-sm text-gray-600 dark:text-gray-400">Grafik fallback (offline).</div></div>
+      <div class="card p-4"><h3 class="text-lg font-semibold mb-3">Rekap per Tingkat</h3><canvas id="chartTingkat" height="140"></canvas><div id="chartTingkatFallback" class="hidden text-sm text-gray-600 dark:text-gray-400">Grafik fallback (offline).</div></div>
+      <div class="card p-4 lg:col-span-2"><h3 class="text-lg font-semibold mb-3">Rekap per Tahun</h3><canvas id="chartTahun" height="140"></canvas><div id="chartTahunFallback" class="hidden text-sm text-gray-600 dark:text-gray-400">Grafik fallback (offline).</div></div>
+    </section>
+  </template>
+
+  <template id="tpl-galeri">
+    <section>
+      <h3 class="text-lg font-semibold mb-3">Galeri Penyerahan Hadiah</h3>
+      <div id="gridGaleri" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+      <p id="galeriKosong" class="text-sm text-gray-600 dark:text-gray-400 hidden mt-2">Belum ada foto yang diunggah.</p>
+    </section>
+  </template>
+
+  <template id="tpl-tentang">
+    <section class="card p-4 space-y-3 leading-relaxed">
+      <h3 class="text-lg font-semibold">Profil Singkat FMIPA Unsulbar</h3>
+      <p>FMIPA Universitas Sulawesi Barat berkomitmen pada pengembangan sains dan teknologi yang berdampak. Sistem ini mendukung transparansi dan akuntabilitas prestasi sivitas akademika.</p>
+      <h4 class="text-base font-semibold mt-4">Struktur Jurusan & Program Studi</h4>
+      <ul class="list-disc pl-6">
+        <li><b>Jurusan Matematika</b>: Program Studi <i>Matematika</i>, <i>Statistika</i>, <i>Aktuaria</i>.</li>
+        <li><b>Jurusan Bioteknologi</b>: Program Studi <i>Bioteknologi</i>.</li>
+      </ul>
+      <p class="text-sm text-gray-600 dark:text-gray-400">Antarmuka minimalis–ceria dengan aksen ungu–biru.</p>
+    </section>
+  </template>
+
+  <!-- ===== SCRIPT APP ===== -->
+  <script>
+/* ===== Memuat Logo (mencoba 2 nama file + fallback SVG) ===== */
+(function(){
+  const el = document.getElementById('logoImg');
+  const fav = document.getElementById('favicon');
+  const tryLoad = (src) => new Promise(res=>{
+    const img = new Image();
+    img.onload = ()=> res(src);
+    img.onerror = ()=> res(null);
+    img.src = src;
+  });
+  (async ()=>{
+    let src = await tryLoad('logo-unsulbar.png');
+    if(!src) src = await tryLoad('Logo-Universitas-Sulawesi-Barat.png');
+    if(!src){
+      src='data:image/svg+xml,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#24346c"/><circle cx="20" cy="20" r="6" fill="#9a7bff"/><circle cx="44" cy="24" r="5" fill="#6b8cff"/><text x="50%" y="58%" text-anchor="middle" font-family="Arial" font-size="14" fill="white">FMIPA</text></svg>`);
+    }
+    el.src = src; fav.href = src;
+  })();
+})();
+
+/* ===== Variabel & Util ===== */
+const $=(s,e=document)=>e.querySelector(s), $$=(s,e=document)=>[...e.querySelectorAll(s)];
+const byId=id=>document.getElementById(id);
+const STORAGE_KEY='prestasi_fmipa_unsulbar_v4';
+const ADMIN_KEY='prestasi_is_admin';
+const THEME_KEY='prestasi_theme';
+byId('year').textContent=new Date().getFullYear();
+function showToast(msg,type='info',ms=2500){const t=byId('toast');const el=document.createElement('div');el.className='toast-item';el.style.background=type==='error'?'#991b1b':(type==='success'?'#14532d':'#111827');el.textContent=msg;t.appendChild(el);setTimeout(()=>el.remove(),ms);}
+
+/* ===== Tema: persist & bekerja offline ===== */
+function setTheme(mode){
+  if(mode==='dark'){ document.documentElement.classList.add('dark'); localStorage.setItem(THEME_KEY,'dark'); $('#iconTheme').textContent='☀️'; }
+  else { document.documentElement.classList.remove('dark'); localStorage.setItem(THEME_KEY,'light'); $('#iconTheme').textContent='🌙'; }
+}
+(function(){
+  const saved=localStorage.getItem(THEME_KEY);
+  if(saved){ setTheme(saved); }
+  else if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches){ setTheme('dark'); }
+  else { setTheme('light'); }
+})();
+byId('btnDark').onclick=()=>setTheme(document.documentElement.classList.contains('dark')?'light':'dark');
+
+/* ===== Admin ===== */
+function isAdmin(){return localStorage.getItem(ADMIN_KEY)==='1'}
+function setAdmin(v){v?localStorage.setItem(ADMIN_KEY,'1'):localStorage.removeItem(ADMIN_KEY);updateAuthUI();}
+function updateAuthUI(){byId('btnLogin').classList.toggle('hidden',isAdmin());byId('btnLogout').classList.toggle('hidden',!isAdmin());}
+updateAuthUI();
+byId('btnLogin').onclick=()=>openModal('modalLogin');
+byId('btnLogout').onclick=()=>{setAdmin(false);showToast('Logout berhasil','success');render();}
+
+/* ===== Data & Migrasi Dummy ===== */
+function baseDummy(){
+  return [
+    // Mahasiswa
+    {id:uid(),kategori:'Mahasiswa',nama:'Siti Rahma',judul:'Juara 1 Lomba KTI',tingkat:'Nasional',jurusan:'Matematika',prodi:'Statistika',tahun:2025,tanggal:'2025-07-14',status:'Disetujui',keterangan:'LKTI Data Sains',linkSertifikat:'',pdfDataURL:'',fotoDataURL:''},
+    {id:uid(),kategori:'Mahasiswa',nama:'Irfan Hidayat',judul:'Juara 2 Data Analytics',tingkat:'Internasional',jurusan:'Matematika',prodi:'Statistika',tahun:2025,tanggal:'2025-08-01',status:'Menunggu Validasi',keterangan:'Python + ML',linkSertifikat:'',pdfDataURL:'',fotoDataURL:''},
+    // Dosen
+    {id:uid(),kategori:'Dosen',nama:'Dr. Rina Putri',judul:'Hak Cipta Modul Bioteknologi',tingkat:'Nasional',jurusan:'Bioteknologi',prodi:'Bioteknologi',tahun:2025,tanggal:'2025-03-07',status:'Disetujui',keterangan:'',linkSertifikat:'',pdfDataURL:'',fotoDataURL:''},
+    // Tendik
+    {id:uid(),kategori:'Tenaga Kependidikan',nama:'Andi Pratama',judul:'Operator Terbaik SIMAK',tingkat:'Lokal',jurusan:'Matematika',prodi:'Matematika',tahun:2025,tanggal:'2025-04-18',status:'Disetujui',keterangan:'Layanan akademik',linkSertifikat:'',pdfDataURL:'',fotoDataURL:''},
+    {id:uid(),kategori:'Tenaga Kependidikan',nama:'Nurlina',judul:'Pelatihan Arsip Nasional (ANRI)',tingkat:'Nasional',jurusan:'Bioteknologi',prodi:'Bioteknologi',tahun:2024,tanggal:'2024-10-05',status:'Menunggu Validasi',keterangan:'Sertifikat pelatihan',linkSertifikat:'',pdfDataURL:'',fotoDataURL:''},
+  ];
+}
+function loadData(){
+  const raw=localStorage.getItem(STORAGE_KEY);
+  let d=[];
+  if(!raw){ d = baseDummy(); saveData(d); return d; }
+  try{ d = JSON.parse(raw)||[] }catch{ d=[] }
+  // MIGRASI/INJEKSI: pastikan setiap kategori punya minimal 1 data agar grafik/tabel terlihat
+  const needCat = (cat)=> d.some(x=>x.kategori===cat);
+  let changed=false;
+  if(!needCat('Mahasiswa')){ d.push({id:uid(),kategori:'Mahasiswa',nama:'Contoh Mahasiswa',judul:'Finalis PKM',tingkat:'Lokal',jurusan:'Matematika',prodi:'Matematika',tahun:new Date().getFullYear(),tanggal:new Date().toISOString().slice(0,10),status:'Menunggu Validasi',keterangan:'Dummy auto',linkSertifikat:'',pdfDataURL:'',fotoDataURL:''}); changed=true; }
+  if(!needCat('Dosen')){ d.push({id:uid(),kategori:'Dosen',nama:'Contoh Dosen',judul:'Publikasi Jurnal Nasional',tingkat:'Nasional',jurusan:'Bioteknologi',prodi:'Bioteknologi',tahun:new Date().getFullYear(),tanggal:new Date().toISOString().slice(0,10),status:'Disetujui',keterangan:'Dummy auto',linkSertifikat:'',pdfDataURL:'',fotoDataURL:''}); changed=true; }
+  if(!needCat('Tenaga Kependidikan')){ d.push({id:uid(),kategori:'Tenaga Kependidikan',nama:'Contoh Tendik',judul:'Pelayanan Terbaik',tingkat:'Lokal',jurusan:'Matematika',prodi:'Statistika',tahun:new Date().getFullYear(),tanggal:new Date().toISOString().slice(0,10),status:'Disetujui',keterangan:'Dummy auto',linkSertifikat:'',pdfDataURL:'',fotoDataURL:''}); changed=true; }
+  if(changed) saveData(d);
+  return d;
+}
+function saveData(d){ localStorage.setItem(STORAGE_KEY,JSON.stringify(d)) }
+let DATA=loadData();
+
+/* ===== Router ===== */
+function setActiveNav(){
+  const h = location.hash || '#/beranda';
+  $$('#topnav a.nav-link').forEach(a=>a.classList.toggle('nav-active', a.getAttribute('href')===h));
+}
+function router(){
+  const h=location.hash||'#/beranda';
+  setActiveNav();
+  if(h.startsWith('#/beranda')) renderBeranda();
+  else if(h.startsWith('#/dosen')) renderTabel('Dosen');
+  else if(h.startsWith('#/mahasiswa')) renderTabel('Mahasiswa');
+  else if(h.startsWith('#/tendik')) renderTabel('Tenaga Kependidikan');
+  else if(h.startsWith('#/laporan')) renderLaporan();
+  else if(h.startsWith('#/galeri')) renderGaleri();
+  else if(h.startsWith('#/tentang')) renderTentang();
+  else location.hash='#/beranda';
+}
+window.addEventListener('hashchange',router);document.addEventListener('DOMContentLoaded',router);
+
+/* ===== Modal & Util ===== */
+function openModal(id){byId(id).classList.remove('hidden')}
+function closeModal(id){byId(id).classList.add('hidden')}
+function uid(){return 'id-'+Math.random().toString(36).slice(2,9)+Date.now().toString(36)}
+
+/* ===== Pencarian cepat (shortcut tetap aktif meski teks bantuan dihapus) ===== */
+const quickSearch=byId('quickSearch');
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='/'){e.preventDefault();quickSearch.focus();}});
+quickSearch.addEventListener('input',()=>render());
+
+/* ===== Ekspor/Impor ===== */
+byId('btnExportCSV').onclick=()=>downloadText('prestasi_fmipa.csv',toCSV(DATA));
+byId('btnExportJSON').onclick=()=>downloadText('prestasi_fmipa.json',JSON.stringify(DATA,null,2));
+byId('inputImport').addEventListener('change',async e=>{
+  const f=e.target.files[0]; if(!f) return;
+  try{
+    const tx=await f.text(); const j=JSON.parse(tx);
+    if(!Array.isArray(j)) throw new Error('Format JSON tidak valid');
+    j.forEach(x=>{ if(!x.id) x.id=uid(); if(x.fotoDataURL && x.fotoDataURL.length>1e7) x.fotoDataURL=''; });
+    DATA=j; saveData(DATA); showToast('Impor JSON berhasil','success'); render();
+  }catch(err){ console.error(err); showToast('Gagal impor JSON','error'); }
+  e.target.value='';
+});
+function toCSV(arr){const cols=['id','kategori','nama','judul','tingkat','jurusan','prodi','tahun','tanggal','status','keterangan','linkSertifikat'];const lines=[cols.join(',')].concat(arr.map(o=>cols.map(c=>`"${(o[c]??'').toString().replaceAll('"','""')}"`).join(',')));return lines.join('\n')}
+function downloadText(fn,txt){const b=new Blob([txt],{type:'text/plain;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=fn;a.click();URL.revokeObjectURL(a.href)}
+
+/* ===== Login ===== */
+byId('formLogin').addEventListener('submit',e=>{
+  e.preventDefault(); const fd=new FormData(e.target);
+  if(fd.get('username')==='admin' && fd.get('password')==='admin123'){ setAdmin(true); closeModal('modalLogin'); showToast('Login admin berhasil','success'); render(); }
+  else showToast('Username/Password salah','error');
+});
+
+/* ===== Tambah/Edit ===== */
+byId('btnAdd').onclick=()=>{ $('#modalTitle').textContent='Tambah Prestasi'; const f=byId('formPrestasi'); f.reset(); f.dataset.editId=''; openModal('modalForm'); }
+byId('formPrestasi').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const f=e.target, fd=new FormData(f), row=Object.fromEntries(fd.entries());
+  row.tahun=Number(row.tahun||new Date().getFullYear());
+  row.id=f.dataset.editId||uid();
+  if(!row.tanggal) row.tanggal=new Date().toISOString().slice(0,10);
+  row.linkSertifikat=row.linkSertifikat?.trim()||'';
+  const img=f.fotoPenyerahan.files?.[0];
+  const pdf=f.pdfSertifikat.files?.[0];
+  if(img) row.fotoDataURL=await fileToDataURL(img); else if(!f.dataset.editId) row.fotoDataURL=row.fotoDataURL||'';
+  if(pdf) row.pdfDataURL=await fileToDataURL(pdf); else if(!f.dataset.editId) row.pdfDataURL=row.pdfDataURL||'';
+  const i=DATA.findIndex(x=>x.id===row.id);
+  if(i>=0){ DATA[i]={...DATA[i],...row}; showToast('Data diperbarui','success'); }
+  else{ row.status='Menunggu Validasi'; DATA.unshift(row); showToast('Data ditambahkan','success'); }
+  saveData(DATA); closeModal('modalForm'); render();
+});
+function fileToDataURL(file){return new Promise((res,rej)=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.onerror=rej;fr.readAsDataURL(file);});}
+
+/* ===== Renderers ===== */
+function renderBeranda(){
+  const root=byId('app'); root.innerHTML='';
+  root.appendChild(byId('tpl-beranda').content.cloneNode(true));
+  const total=DATA.length,pending=DATA.filter(x=>x.status==='Menunggu Validasi').length,ok=DATA.filter(x=>x.status==='Disetujui').length,no=DATA.filter(x=>x.status==='Ditolak').length;
+  byId('cardTotal').textContent=total;byId('cardPending').textContent=pending;byId('cardApproved').textContent=ok;byId('cardRejected').textContent=no;
+
+  const list=byId('listTerbaru');
+  DATA.slice(0,5).forEach(x=>{
+    const div=document.createElement('div');div.className='card p-3 flex items-start justify-between gap-3';
+    div.innerHTML=`<div class="min-w-0">
+      <div class="text-sm text-gray-600 dark:text-gray-400">${fmtDate(x.tanggal)} • <b>${x.kategori}</b> • ${x.tingkat}</div>
+      <div class="font-semibold truncate">${esc(x.judul)}</div>
+      <div class="text-sm text-gray-700 dark:text-gray-300 truncate">${esc(x.nama)} — ${x.jurusan}/${x.prodi}</div>
+    </div>
+    <span class="badge ${x.status==='Disetujui'?'ok':x.status==='Ditolak'?'no':'wait'}">${x.status}</span>`;
+    list.appendChild(div);
+  });
+
+  // Kategori dinamis
+  const categories = Array.from(new Set(DATA.map(x => x.kategori))).sort();
+  const catData = categories.map(c => DATA.filter(x => x.kategori === c).length);
+  const ctx = byId('chartBeranda').getContext('2d');
+  if(window.__chartOffline || typeof Chart==='undefined'){
+    byId('chartBerandaFallback').classList.remove('hidden');
+    drawFallbackBar(ctx, categories, catData);
+  }else{
+    new Chart(ctx,{type:'bar',data:{labels:categories,datasets:[{label:'Jumlah',data:catData}]},options:{responsive:true,plugins:{legend:{display:false}}}});
+  }
+}
+
+function renderTabel(forKategori){
+  const root=byId('app'); root.innerHTML=''; root.appendChild(byId('tpl-tabel').content.cloneNode(true));
+  let state={sortBy:'tanggal',sortDir:'desc',page:1,pageSize:Number(byId('pageSize').value||15),filterJurusan:'',filterProdi:'',filterTingkat:'',filterStatus:'',chipLevel:'All',chipStatus:'All'};
+  byId('pageSize').onchange=e=>{state.pageSize=Number(e.target.value);state.page=1;paint()}
+  byId('filterJurusan').onchange=e=>{state.filterJurusan=e.target.value;state.page=1;paint()}
+  byId('filterProdi').onchange=e=>{state.filterProdi=e.target.value;state.page=1;paint()}
+  byId('filterTingkat').onchange=e=>{state.filterTingkat=e.target.value;state.page=1;paint()}
+  byId('filterStatus').onchange=e=>{state.filterStatus=e.target.value;state.page=1;paint()}
+  byId('prevPage').onclick=()=>{if(state.page>1){state.page--;paint()}}
+  byId('nextPage').onclick=()=>{state.page++;paint()}
+  $$('.sort').forEach(th=>th.onclick=()=>{const k=th.dataset.sort;if(state.sortBy===k) state.sortDir=state.sortDir==='asc'?'desc':'asc'; else{state.sortBy=k;state.sortDir='asc';}paint()});
+  $$('[data-chip]').forEach(ch=>ch.onclick=()=>{const lvl=ch.dataset.chipLevel,st=ch.dataset.chipStatus;if(lvl){state.chipLevel=lvl;$$('[data-chip][data-chip-level]').forEach(c=>c.classList.remove('active'));ch.classList.add('active');} if(st){state.chipStatus=st;$$('[data-chip][data-chip-status]').forEach(c=>c.classList.remove('active'));ch.classList.add('active');} state.page=1;paint()});
+
+  function filtered(){
+    const q=quickSearch.value.trim().toLowerCase();
+    return DATA.filter(x=>{
+      if(x.kategori!==forKategori) return false;
+      if(state.filterJurusan && x.jurusan!==state.filterJurusan) return false;
+      if(state.filterProdi && x.prodi!==state.filterProdi) return false;
+      if(state.filterTingkat && x.tingkat!==state.filterTingkat) return false;
+      if(state.filterStatus && x.status!==state.filterStatus) return false;
+      if(state.chipLevel!=='All' && x.tingkat!==state.chipLevel) return false;
+      if(state.chipStatus!=='All' && x.status!==state.chipStatus) return false;
+      if(q){const hay=`${x.nama} ${x.judul} ${x.jurusan} ${x.prodi} ${x.tingkat} ${x.status}`.toLowerCase(); if(!hay.includes(q)) return false;}
+      return true;
+    });
+  }
+  function sorter(a,b,k){const d=state.sortDir==='asc'?1:-1;let va=a[k],vb=b[k]; if(k==='tahun'){va=Number(va||0);vb=Number(vb||0);} if(k==='tanggal'){va=new Date(a.tanggal||'1970-01-01');vb=new Date(b.tanggal||'1970-01-01');} if(va<vb)return-1*d; if(va>vb)return 1*d; return 0;}
+  function paint(){
+    const arr=filtered().sort((a,b)=>sorter(a,b,state.sortBy));
+    const total=arr.length,start=(state.page-1)*state.pageSize,pageItems=arr.slice(start,start+state.pageSize);
+    if(start>=total&&state.page>1){state.page=Math.max(1,Math.ceil(total/state.pageSize));return paint();}
+    const tbody=byId('tbodyData'); tbody.innerHTML='';
+    pageItems.forEach(x=>{
+      const tr=document.createElement('tr'); tr.innerHTML=`
+        <td>${fmtDate(x.tanggal)}</td>
+        <td class="font-medium">${esc(x.nama)}</td>
+        <td>${x.kategori}</td>
+        <td class="min-w-[16rem]">${esc(x.judul)}</td>
+        <td>${x.tingkat}</td>
+        <td>${x.jurusan}</td>
+        <td>${x.prodi}</td>
+        <td>${x.tahun}</td>
+        <td><span class="badge ${x.status==='Disetujui'?'ok':x.status==='Ditolak'?'no':'wait'}">${x.status}</span></td>
+        <td>
+          ${x.linkSertifikat?`<a href="${esc(x.linkSertifikat)}" target="_blank" class="underline underline-offset-4 text-brand-700">Sertifikat</a>`:''}
+          ${x.pdfDataURL?`${x.linkSertifikat?' • ':''}<a href="${x.pdfDataURL}" target="_blank" class="underline underline-offset-4 text-brand-700">PDF</a>`:''}
+          ${(!x.linkSertifikat && !x.pdfDataURL)?'<span class="text-gray-400">-</span>':''}
+          ${x.fotoDataURL?' • <a href="#/galeri" class="underline underline-offset-4 text-brand-700">Foto</a>':''}
+        </td>
+        <td class="whitespace-nowrap">
+          ${isAdmin()? `<div class="flex items-center gap-2">
+            <button class="btn primary" title="Setujui" data-approve="${x.id}">✔</button>
+            <button class="btn warn" title="Tolak" data-reject="${x.id}">✖</button>
+            <button class="btn" title="Edit" data-edit="${x.id}">✎</button>
+            <button class="btn danger" title="Hapus" data-del="${x.id}">🗑</button>
+          </div>` : `<span class="text-xs text-gray-500">Login admin untuk tindakan</span>`}
+        </td>`;
+      tbody.appendChild(tr);
+    });
+    if(isAdmin()){
+      $$('[data-approve]').forEach(b=>b.onclick=()=>updateStatus(b.dataset.approve,'Disetujui'));
+      $$('[data-reject]').forEach(b=>b.onclick=()=>updateStatus(b.dataset.reject,'Ditolak'));
+      $$('[data-del]').forEach(b=>b.onclick=()=>delRow(b.dataset.del));
+      $$('[data-edit]').forEach(b=>b.onclick=()=>editRow(b.dataset.edit));
+    }
+    byId('infoPage').textContent=`${total} data • Urut: ${state.sortBy} (${state.sortDir})`;
+    byId('pageNow').textContent=`${state.page} / ${Math.max(1,Math.ceil(total/state.pageSize))}`;
+  }
+  paint();
+
+  function updateStatus(id,st){const i=DATA.findIndex(x=>x.id===id); if(i<0)return; DATA[i].status=st; saveData(DATA); showToast(`Status diubah ke ${st}`,'success'); paint();}
+  function delRow(id){ if(!confirm('Hapus data ini?')) return; DATA=DATA.filter(x=>x.id!==id); saveData(DATA); showToast('Data dihapus','success'); paint();}
+  function editRow(id){
+    const x=DATA.find(r=>r.id===id); if(!x)return;
+    $('#modalTitle').textContent='Edit Prestasi';
+    const f=byId('formPrestasi'); f.reset(); f.dataset.editId=x.id;
+    f.kategori.value=x.kategori; f.nama.value=x.nama; f.judul.value=x.judul; f.tingkat.value=x.tingkat;
+    f.jurusan.value=x.jurusan; f.prodi.value=x.prodi; f.tahun.value=x.tahun; f.tanggal.value=x.tanggal;
+    f.status.value=x.status; f.keterangan.value=x.keterangan||''; f.linkSertifikat.value=x.linkSertifikat||'';
+    openModal('modalForm');
+  }
+}
+
+function renderLaporan(){
+  const root=byId('app'); root.innerHTML=''; root.appendChild(byId('tpl-laporan').content.cloneNode(true));
+  const cat=groupCount(DATA,'kategori'), lvl=groupCount(DATA,'tingkat'), th=groupCount(DATA,'tahun');
+  makeChartOrFallback('chartKategori','chartKategoriFallback','pie',Object.keys(cat),Object.values(cat));
+  makeChartOrFallback('chartTingkat','chartTingkatFallback','bar',Object.keys(lvl),Object.values(lvl));
+  const years=Object.keys(th).sort((a,b)=>a-b); makeChartOrFallback('chartTahun','chartTahunFallback','line',years,years.map(y=>th[y]));
+}
+
+function renderGaleri(){
+  const root=byId('app'); root.innerHTML=''; root.appendChild(byId('tpl-galeri').content.cloneNode(true));
+  const grid=byId('gridGaleri'); grid.innerHTML='';
+  const fotos=DATA.filter(x=>x.fotoDataURL);
+  if(!fotos.length){ byId('galeriKosong').classList.remove('hidden'); return; }
+  fotos.forEach(x=>{
+    const card=document.createElement('div'); card.className='card p-2';
+    card.innerHTML=`<img src="${x.fotoDataURL}" alt="Foto ${esc(x.nama)}" class="w-full h-40 object-cover rounded-xl">
+      <div class="p-2">
+        <div class="font-semibold text-sm truncate">${esc(x.nama)} • ${x.kategori}</div>
+        <div class="text-xs text-gray-600 dark:text-gray-400 truncate">${esc(x.judul)}</div>
+        <div class="text-xs text-gray-500">${fmtDate(x.tanggal)} • ${x.tingkat}</div>
+        ${x.linkSertifikat?`<a href="${esc(x.linkSertifikat)}" target="_blank" class="text-xs underline underline-offset-4 text-brand-700">Sertifikat</a>`:''}
+        ${x.pdfDataURL?` • <a href="${x.pdfDataURL}" target="_blank" class="text-xs underline underline-offset-4 text-brand-700">PDF</a>`:''}
+      </div>`;
+    card.onclick=()=>lightbox(x.fotoDataURL, `${esc(x.nama)} — ${esc(x.judul)}`);
+    grid.appendChild(card);
+  });
+}
+function lightbox(src,cap=''){const wrap=document.createElement('div');wrap.className='modal';wrap.innerHTML=`<div class="modal-card w-full max-w-4xl p-2"><img src="${src}" alt="${cap}" class="w-full max-h-[75vh] object-contain rounded-xl"><div class="p-2 text-sm text-gray-600 dark:text-gray-400">${cap}</div><div class="flex justify-end"><button class="btn">Tutup</button></div></div>`;wrap.querySelector('button').onclick=()=>wrap.remove();wrap.addEventListener('click',e=>{if(e.target===wrap)wrap.remove()});document.body.appendChild(wrap);}
+
+function renderTentang(){const root=byId('app'); root.innerHTML=''; root.appendChild(byId('tpl-tentang').content.cloneNode(true));}
+
+/* ===== Helpers & Charts ===== */
+function esc(s=''){return s.replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+function fmtDate(d){if(!d)return'-';const dd=new Date(d);if(isNaN(dd))return d;return dd.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'});}
+function groupCount(a,k){return a.reduce((m,c)=>(m[c[k]]=(m[c[k]]||0)+1,m),{});}
+function makeChartOrFallback(id,fid,type,labels,data){const ctx=byId(id).getContext('2d');if(window.__chartOffline||typeof Chart==='undefined'){byId(fid).classList.remove('hidden'); if(type==='pie')drawFallbackPie(ctx,labels,data); else if(type==='line')drawFallbackLine(ctx,labels,data); else drawFallbackBar(ctx,labels,data);} else{new Chart(ctx,{type,data:{labels,datasets:[{label:'Jumlah',data}]},options:{responsive:true,plugins:{legend:{display:type!=='bar'}}}})}}
+function drawFallbackBar(ctx,labels,data){const W=ctx.canvas.width,H=ctx.canvas.height,max=Math.max(1,...data),n=labels.length,p=20,g=10,bw=(W-p*2-g*(n-1))/n;const c=ctx;c.clearRect(0,0,W,H);c.fillStyle='#6b8cff';labels.forEach((lb,i)=>{const h=(H-p*2)*(data[i]/max);const x=p+i*(bw+g),y=H-p-h;c.fillRect(x,y,bw,h);c.fillStyle='#666';c.fillText(lb,x,H-5);c.fillStyle='#6b8cff';});}
+function drawFallbackPie(ctx,labels,data){const W=ctx.canvas.width,H=ctx.canvas.height,r=Math.min(W,H)/2-10,cx=W/2,cy=H/2,total=data.reduce((a,b)=>a+b,0)||1,c=ctx;c.clearRect(0,0,W,H);let st=0;labels.forEach((lb,i)=>{const ang=(data[i]/total)*Math.PI*2;c.beginPath();c.moveTo(cx,cy);c.fillStyle=i%2?'#6b8cff':'#9a7bff';c.arc(cx,cy,r,st,st+ang);c.closePath();c.fill();st+=ang;});}
+function drawFallbackLine(ctx,labels,data){const W=ctx.canvas.width,H=ctx.canvas.height,p=20,max=Math.max(1,...data),min=0,n=labels.length,c=ctx;c.clearRect(0,0,W,H);c.strokeStyle='#6b8cff';c.lineWidth=2;c.beginPath();labels.forEach((lb,i)=>{const x=p+i*((W-2*p)/Math.max(1,n-1)),y=H-p-((data[i]-min)/(max-min))*(H-2*p);if(i===0)c.moveTo(x,y);else c.lineTo(x,y);});c.stroke();}
+
+/* ===== Inisialisasi ===== */
+byId('btnExportCSV').title='Ekspor ke CSV';byId('btnExportJSON').title='Ekspor ke JSON';byId('btnAdd').title='Tambah prestasi';byId('btnLogin').title='Login admin (demo)';byId('btnLogout').title='Logout admin';
+$$('#topnav a').forEach(a=>a.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'})));
+router();
+  </script>
+</body>
+</html>
