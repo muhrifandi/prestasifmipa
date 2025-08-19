@@ -59,27 +59,15 @@
           <a href="#/galeri" class="px-3 py-2 rounded hover:bg-indigo-50">Galeri</a>
           <a href="#/tentang" class="px-3 py-2 rounded hover:bg-indigo-50">Tentang</a>
 
-          <!-- Menus session -->
-          <div id="menuSivitasWrap" class="relative hidden">
-            <button id="btnSivitasMenu" class="btn">Sivitas ▾</button>
-            <div id="sivitasMenu" class="hidden absolute right-0 top-full bg-white border border-gray-200 rounded-lg shadow-lg p-2 z-40">
-              <div class="px-3 py-2 text-sm text-gray-600" id="sivitasInfo">-</div>
-              <div class="px-3 py-1 text-xs" id="sivitasStatus"></div>
-              <button id="miLogoutSivitas" class="block w-full text-left px-3 py-2 rounded hover:bg-red-50 text-red-600">Logout</button>
-            </div>
-          </div>
-
+          <!-- Menu Admin -->
           <div id="menuAdminWrap" class="relative hidden">
             <button id="btnAdminMenu" class="btn">Admin ▾</button>
             <div id="adminMenu" class="hidden absolute right-0 top-full bg-white border border-gray-200 rounded-lg shadow-lg p-2 z-40">
-              <button id="miManageUsers" class="block w-full text-left px-3 py-2 rounded hover:bg-indigo-50">Kelola Pendaftar <span id="badgePending" class="ml-1 text-xs text-amber-700"></span></button>
-              <button id="miChangePass" class="block w-full text-left px-3 py-2 rounded hover:bg-indigo-50">Ganti Password</button>
               <button id="miLogout" class="block w-full text-left px-3 py-2 rounded hover:bg-red-50 text-red-600">Logout</button>
             </div>
           </div>
 
-          <button id="btnRegister" class="btn">Daftar</button>
-          <button id="btnLogin" class="btn primary">Login</button>
+          <button id="btnLogin" class="btn primary">Masuk</button>
         </nav>
 
         <!-- Mobile -->
@@ -103,8 +91,7 @@
           <a href="#/galeri" class="px-3 py-2 rounded hover:bg-indigo-50">Galeri</a>
           <a href="#/tentang" class="px-3 py-2 rounded hover:bg-indigo-50">Tentang</a>
           <div class="flex gap-2 px-3 mt-2">
-            <button id="btnRegisterMobile" class="btn w-full">Daftar</button>
-            <button id="btnLoginMobile" class="btn primary w-full">Login</button>
+            <button id="btnLoginMobile" class="btn primary w-full">Masuk</button>
           </div>
         </div>
       </div>
@@ -118,7 +105,6 @@
         <button id="btnAdd" class="btn primary hidden">➕ Tambah Prestasi</button>
         <button id="btnExportCSV" class="btn hidden">↓ CSV</button>
         <button id="btnExportJSON" class="btn hidden">↓ JSON</button>
-        <label id="lblImportJSON" class="btn hidden cursor-pointer">↑ Impor JSON <input id="inputImport" type="file" accept="application/json" class="hidden"></label>
       </div>
       <input id="quickSearch" type="search" placeholder="Cari cepat…" class="w-44 sm:w-64 md:w-80 px-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500" />
     </div>
@@ -136,85 +122,45 @@
 
   <!-- ===== MODALS ===== -->
 
-  <!-- Modal Login (Supabase Auth) -->
+  <!-- Modal Masuk -->
   <div id="modalLogin" class="modal hidden">
     <div class="modal-card w-full max-w-lg p-4">
       <div class="flex items-center justify-between mb-3">
-        <h3 class="text-lg font-semibold">Login Admin</h3>
+        <h3 class="text-lg font-semibold">Masuk</h3>
         <button class="btn" onclick="closeModal('modalLogin')">✖</button>
       </div>
-
       <form id="formLogin" class="space-y-3">
-        <div><label class="text-sm font-medium">Email</label><input name="email" type="email" required class="w-full px-3 py-2 border rounded-xl" placeholder="admin@unsulbar.ac.id"></div>
+        <div><label class="text-sm font-medium">Email</label><input name="email" type="email" required class="w-full px-3 py-2 border rounded-xl" placeholder="nama@unsulbar.ac.id"></div>
         <div><label class="text-sm font-medium">Password</label><input name="password" type="password" required class="w-full px-3 py-2 border rounded-xl" placeholder="••••••••"></div>
-        <div class="flex items-center justify-end gap-2 pt-2">
+        <div class="flex items-center justify-between pt-2">
           <button type="button" class="btn" onclick="closeModal('modalLogin')">Batal</button>
+          <div class="text-sm text-gray-600">
+            Belum punya akun? <a id="linkOpenSignup" class="underline cursor-pointer">Daftar</a>
+          </div>
           <button type="submit" class="btn primary">Masuk</button>
         </div>
       </form>
-      <!-- Tidak ada hint password default di sini (sesuai permintaan) -->
     </div>
   </div>
 
-  <!-- Modal Register (Sivitas) -->
-  <div id="modalRegister" class="modal hidden">
+  <!-- Modal Sign Up -->
+  <div id="modalSignup" class="modal hidden">
     <div class="modal-card w-full max-w-lg p-4">
       <div class="flex items-center justify-between mb-3">
-        <h3 class="text-lg font-semibold">Daftar Akun Sivitas</h3>
-        <button class="btn" onclick="closeModal('modalRegister')">✖</button>
+        <h3 class="text-lg font-semibold">Daftar Akun</h3>
+        <button class="btn" onclick="closeModal('modalSignup')">✖</button>
       </div>
-      <form id="formRegister" class="space-y-3">
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="text-sm font-medium">Jenis</label>
-            <select name="jenis" class="w-full px-3 py-2 border rounded-xl">
-              <option>NIM</option><option>NIDN</option><option>NIP</option>
-            </select>
-          </div>
-          <div>
-            <label class="text-sm font-medium">Nomor (angka)</label>
-            <input name="nomor" required class="w-full px-3 py-2 border rounded-xl" placeholder="contoh: 2201...">
-          </div>
-        </div>
-        <div>
-          <label class="text-sm font-medium">Nama Lengkap</label>
-          <input name="nama" required class="w-full px-3 py-2 border rounded-xl">
-        </div>
-        <div>
-          <label class="text-sm font-medium">Email (opsional)</label>
-          <input name="email" type="email" class="w-full px-3 py-2 border rounded-xl" placeholder="nama@unsulbar.ac.id">
-        </div>
-        <p class="text-xs text-gray-600">Pendaftaran akan <b>diverifikasi admin</b> sebelum Anda dapat menambah prestasi.</p>
+      <form id="formSignup" class="space-y-3">
+        <div><label class="text-sm font-medium">Email</label>
+          <input name="email" type="email" required class="w-full px-3 py-2 border rounded-xl" placeholder="nama@unsulbar.ac.id"></div>
+        <div><label class="text-sm font-medium">Password</label>
+          <input name="password" type="password" minlength="6" required class="w-full px-3 py-2 border rounded-xl" placeholder="min 6 karakter"></div>
         <div class="flex items-center justify-end gap-2 pt-2">
-          <button type="button" class="btn" onclick="closeModal('modalRegister')">Batal</button>
-          <button type="submit" class="btn primary">Kirim Pendaftaran</button>
+          <button type="button" class="btn" onclick="closeModal('modalSignup')">Batal</button>
+          <button type="submit" class="btn primary">Daftar</button>
         </div>
       </form>
-    </div>
-  </div>
-
-  <!-- Modal Kelola Pendaftar (Admin) -->
-  <div id="modalUsers" class="modal hidden">
-    <div class="modal-card w-full max-w-3xl p-4">
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="text-lg font-semibold">Kelola Pendaftar</h3>
-        <button class="btn" onclick="closeModal('modalUsers')">✖</button>
-      </div>
-      <div class="flex items-center gap-2 mb-2">
-        <select id="fltUserStatus" class="px-3 py-2 border rounded-xl">
-          <option value="pending">Pending</option>
-          <option value="approved">Disetujui</option>
-          <option value="rejected">Ditolak</option>
-          <option value="">Semua</option>
-        </select>
-        <input id="searchUsers" type="search" placeholder="Cari nama/nomor..." class="px-3 py-2 border rounded-xl">
-      </div>
-      <div class="table-wrap">
-        <table class="table w-full text-sm">
-          <thead><tr><th>Jenis</th><th>Nomor</th><th>Nama</th><th>Email</th><th>Status</th><th>Aksi</th></tr></thead>
-          <tbody id="tbodyUsers"></tbody>
-        </table>
-      </div>
+      <p class="text-xs text-gray-600 mt-2">Setelah daftar, silakan login untuk menambahkan prestasi.</p>
     </div>
   </div>
 
@@ -447,8 +393,8 @@
   <!-- ===== SCRIPT APP ===== -->
   <script>
 /* ====== KONFIG SUPABASE — GANTI SESUAI PROJECTMU ====== */
-const SUPABASE_URL = "https://gaaczshosszdddhrfeii.supabase.co";       
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdhYWN6c2hvc3N6ZGRkaHJmZWlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1NzQ0NjIsImV4cCI6MjA3MTE1MDQ2Mn0.dgXfUP2jl7PEH--u-7pI4aJgpiVCqY8z3HtxEymn0Is";              
+const SUPABASE_URL = "https://gaaczshosszdddhrfeii.supabase.co";       // <- ganti
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdhYWN6c2hvc3N6ZGRkaHJmZWlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1NzQ0NjIsImV4cCI6MjA3MTE1MDQ2Mn0.dgXfUP2jl7PEH--u-7pI4aJgpiVCqY8z3HtxEymn0Is";              // <- ganti
 const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const BUCKET = 'uploads';
 
@@ -459,26 +405,23 @@ byId('year').textContent=new Date().getFullYear();
 function showToast(msg,type='info',ms=2500){const t=byId('toast');const el=document.createElement('div');el.className='toast-item';el.style.background=type==='error'?'#991b1b':(type==='success'?'#14532d':'#0f172a');el.textContent=msg;t.appendChild(el);setTimeout(()=>el.remove(),ms);}
 function openModal(id){byId(id).classList.remove('hidden')}
 function closeModal(id){byId(id).classList.add('hidden')}
-function uid(){return 'id-'+Math.random().toString(36).slice(2,9)+Date.now().toString(36)}
-function esc(s=''){return s.replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+function esc(s=''){return s.replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&gt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
 function fmtDate(d){if(!d)return'-';const dd=new Date(d);if(isNaN(dd))return d;return dd.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'});}
-function fileToDataURL(file){return new Promise((res,rej)=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.onerror=rej;fr.readAsDataURL(file);});}
 function downloadText(fn,txt){const b=new Blob([txt],{type:'text/plain;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=fn;a.click();URL.revokeObjectURL(a.href)}
 
-/* ===== State (di memori) ===== */
-let ADMIN = null;           // Supabase Auth user (email) jika login
-let SIVITAS = null;         // { jenis, nomor, status } jika login via pendaftaran
-let DATA = [];              // prestasi (cache)
-let INFO = [];              // info (cache)
-let REGS = [];              // registrations (cache)
+/* ===== State ===== */
+let USER = null;      // Supabase auth user object
+let IS_ADMIN = false; // user?.app_metadata?.role === 'admin'
+let DATA = [];        // prestasi
+let INFO = [];        // informasi
 
-/* ===== Navbar/Toolbar behaviors ===== */
+/* ===== Navbar / Mobile ===== */
 const btnHamb=byId('btnHamburger'); const mobileMenu=byId('mobileMenu');
 btnHamb.addEventListener('click',()=>{const open=mobileMenu.classList.toggle('hidden')===false;btnHamb.setAttribute('aria-expanded',open?'true':'false');});
-document.addEventListener('click',(e)=>{if(!e.target.closest('#btnAdminMenu')) byId('adminMenu')?.classList.add('hidden');if(!e.target.closest('#btnSivitasMenu')) byId('sivitasMenu')?.classList.add('hidden');});
+document.addEventListener('click',(e)=>{if(!e.target.closest('#btnAdminMenu')) byId('adminMenu')?.classList.add('hidden');});
 
 /* ===== Router ===== */
-function router(){
+function route(){
   const h=location.hash||'#/beranda';
   if(h.startsWith('#/beranda')) renderBeranda();
   else if(h.startsWith('#/dosen')) renderTabel('Dosen');
@@ -490,182 +433,101 @@ function router(){
   else if(h.startsWith('#/tentang')) renderTentang();
   else location.hash='#/beranda';
 }
-window.addEventListener('hashchange',router);document.addEventListener('DOMContentLoaded',router);
+window.addEventListener('hashchange',route);
 
-/* ===== Quick search ===== */
-const quickSearch=byId('quickSearch');
-document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='/'){e.preventDefault();quickSearch.focus();}});
-quickSearch.addEventListener('input',()=>render());
-
-/* ===== Update UI according to session ===== */
-function updateAuthUI(){
-  const isA=!!ADMIN;
-  const sv=SIVITAS;
-
-  // Toolbar
-  byId('btnAdd').classList.toggle('hidden',!isA);
-  byId('btnExportCSV').classList.toggle('hidden',!isA);
-  byId('btnExportJSON').classList.toggle('hidden',!isA);
-  byId('lblImportJSON').classList.toggle('hidden',!isA);
-
-  // Menus
-  byId('btnLogin').classList.toggle('hidden',isA||!!sv);
-  byId('btnRegister').classList.toggle('hidden',isA||!!sv);
-  byId('btnLoginMobile').classList.toggle('hidden',isA||!!sv);
-  byId('btnRegisterMobile').classList.toggle('hidden',isA||!!sv);
-  byId('menuAdminWrap').classList.toggle('hidden',!isA);
-  byId('menuSivitasWrap').classList.toggle('hidden',!sv);
-
-  if(sv){ 
-    byId('sivitasInfo').textContent=`${sv.jenis} ${sv.nomor}`;
-    byId('sivitasStatus').textContent = sv.status==='approved'
-      ? 'Status: Disetujui (boleh mengajukan prestasi ke admin)'
-      : sv.status==='pending'
-        ? 'Status: Menunggu persetujuan admin'
-        : 'Status: Ditolak';
-  }
-
-  // badge pending
-  const bp = byId('badgePending'); if(bp){ const n=REGS.filter(r=>r.status==='pending').length; bp.textContent = n?`(${n})`:''; }
-}
-
-/* ======= Supabase helpers ======= */
-async function supaSelectAll(){
-  const { data: prestasi, error: e1 } = await supa.from('prestasi').select('*').order('tanggal', { ascending:false });
-  if(e1) console.error(e1); else DATA = prestasi||[];
-  const { data: infos, error: e2 } = await supa.from('info').select('*').order('tanggal', { ascending:false });
-  if(e2) console.error(e2); else INFO = infos||[];
-  // registrations hanya bisa dibaca jika admin login (RLS)
-  if(ADMIN){
-    const { data: regs, error: e3 } = await supa.from('registrations').select('*').order('created_at', { ascending:false });
-    if(e3) console.error(e3); else REGS = regs||[];
-  } else {
-    REGS = [];
-  }
-  updateAuthUI();
-}
-
-/* ======= Auth (Admin via Supabase) ======= */
-async function checkAuth(){
+/* ===== Auth helpers ===== */
+function computeIsAdmin(user){ try { return (user?.app_metadata?.role === 'admin'); } catch { return false; } }
+async function refreshUser(){
   const { data: { user } } = await supa.auth.getUser();
-  ADMIN = user;
+  USER = user || null;
+  IS_ADMIN = computeIsAdmin(USER);
   updateAuthUI();
 }
-checkAuth();
 
+/* ===== Update UI by auth ===== */
+function updateAuthUI(){
+  const loggedIn = !!USER;
+  byId('btnAdd').classList.toggle('hidden', !loggedIn); // semua user login boleh tambah
+  byId('btnExportCSV').classList.toggle('hidden', !IS_ADMIN);
+  byId('btnExportJSON').classList.toggle('hidden', !IS_ADMIN);
+  byId('menuAdminWrap').classList.toggle('hidden', !IS_ADMIN);
+  byId('btnLogin').classList.toggle('hidden', loggedIn);
+  byId('btnLoginMobile').classList.toggle('hidden', loggedIn);
+}
+
+/* ===== Data fetch ===== */
+async function fetchAll(){
+  const { data: prestasi, error: e1 } = await supa.from('prestasi').select('*').order('tanggal', { ascending:false });
+  if(e1) console.error(e1); DATA = prestasi||[];
+  const { data: infos, error: e2 } = await supa.from('info').select('*').order('tanggal', { ascending:false });
+  if(e2) console.error(e2); INFO = infos||[];
+}
+
+/* ====== Login / Signup ====== */
 byId('btnLogin').onclick=()=>openModal('modalLogin');
-byId('btnLoginMobile').onclick=()=>{openModal('modalLogin');mobileMenu.classList.add('hidden')}
+byId('btnLoginMobile').onclick=()=>{openModal('modalLogin'); mobileMenu.classList.add('hidden');}
+byId('btnAdminMenu').onclick=()=>byId('adminMenu').classList.toggle('hidden');
+byId('linkOpenSignup')?.addEventListener('click',()=>{closeModal('modalLogin'); openModal('modalSignup');});
+
+byId('formSignup').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const fd=new FormData(e.target);
+  const email=fd.get('email').trim(); const password=fd.get('password');
+  const { data, error } = await supa.auth.signUp({ email, password });
+  if(error){ console.error(error); return showToast('Gagal daftar: '+(error.message||''),'error'); }
+  showToast('Pendaftaran berhasil. Silakan login.','success');
+  closeModal('modalSignup'); openModal('modalLogin');
+});
+
 byId('formLogin').addEventListener('submit', async e=>{
   e.preventDefault();
   const fd=new FormData(e.target);
   const email=fd.get('email').trim(), password=fd.get('password');
   const { data, error } = await supa.auth.signInWithPassword({ email, password });
   if(error){ showToast('Login gagal','error'); return; }
-  ADMIN = data.user;
-  closeModal('modalLogin'); showToast('Login admin berhasil','success');
-  await supaSelectAll(); render();
+  USER = data.user; IS_ADMIN = computeIsAdmin(USER);
+  closeModal('modalLogin'); showToast(IS_ADMIN?'Login admin berhasil':'Login berhasil','success');
+  await fetchAll(); render();
 });
 
 byId('miLogout')?.addEventListener('click',async()=>{
   await supa.auth.signOut();
-  ADMIN = null; updateAuthUI(); showToast('Logout admin','success'); render();
+  USER = null; IS_ADMIN=false; updateAuthUI(); showToast('Logout','success'); render();
 });
 
-/* ====== SIVITAS: Register + Pseudo-login berdasar nomor (approved) ====== */
-byId('btnRegister').onclick=()=>openModal('modalRegister');
-byId('btnRegisterMobile').onclick=()=>{openModal('modalRegister'); mobileMenu.classList.add('hidden');}
-byId('miLogoutSivitas')?.addEventListener('click',()=>{SIVITAS=null; updateAuthUI(); showToast('Logout','success');});
+/* ===== Toolbar ===== */
+byId('btnAdd').onclick=()=>{ if(!USER) return showToast('Harus login','error'); $('#modalTitle').textContent='Tambah Prestasi'; const f=byId('formPrestasi'); f.reset(); f.dataset.editId=''; openModal('modalForm'); };
 
-byId('formRegister').addEventListener('submit',async e=>{
-  e.preventDefault();
-  const fd=new FormData(e.target);
-  const jenis=(fd.get('jenis')||'').toUpperCase();
-  const nomor=(fd.get('nomor')||'').replace(/\D+/g,'');
-  const nama=(fd.get('nama')||'').trim();
-  const email=(fd.get('email')||'').trim();
-  if(!nomor) return showToast('Nomor harus angka','error');
-
-  // insert registrations (public allowed by policy)
-  const rec={ jenis, nomor, nama, email, status:'pending' };
-  const { error } = await supa.from('registrations').insert(rec);
-  if(error){ console.error(error); return showToast('Gagal daftar','error'); }
-  closeModal('modalRegister'); showToast('Pendaftaran dikirim. Menunggu persetujuan admin.','success');
-  await supaSelectAll(); updateAuthUI();
-});
-
-/* ===== ADMIN: kelola pendaftar ===== */
-byId('miManageUsers')?.addEventListener('click',()=>{ if(!ADMIN){return showToast('Hanya admin','error')} openModal('modalUsers'); paintUsers(); });
-
-async function setRegStatus(id,st){
-  if(!ADMIN) return showToast('Hanya admin','error');
-  const { error } = await supa.from('registrations').update({ status: st }).eq('id', id);
-  if(error){console.error(error);return showToast('Gagal update','error');}
-  await supaSelectAll(); paintUsers(); updateAuthUI();
-}
-
-function paintUsers(){
-  const tb=byId('tbodyUsers'); const flt=byId('fltUserStatus'); const q=byId('searchUsers');
-  async function draw(){
-    // REGS sudah di-cache saat supaSelectAll() jika admin login
-    const query=(q.value||'').toLowerCase().trim();
-    let arr = REGS.slice();
-    const st=flt.value; if(st) arr = arr.filter(r=>r.status===st);
-    if(query) arr = arr.filter(r=>(`${r.nama} ${r.nomor}`).toLowerCase().includes(query));
-    tb.innerHTML='';
-    arr.forEach(r=>{
-      const tr=document.createElement('tr');
-      tr.innerHTML=`<td>${r.jenis}</td><td class="font-medium">${r.nomor}</td><td>${esc(r.nama||'-')}</td><td>${esc(r.email||'-')}</td><td>${r.status}</td>
-      <td class="whitespace-nowrap">
-        <button class="btn" data-approve="${r.id}">Setujui</button>
-        <button class="btn" data-reject="${r.id}">Tolak</button>
-        <button class="btn danger" data-del="${r.id}">Hapus</button>
-      </td>`;
-      tb.appendChild(tr);
-    });
-    $$('[data-approve]',tb).forEach(b=>b.onclick=()=>setRegStatus(b.dataset.approve,'approved'));
-    $$('[data-reject]',tb).forEach(b=>b.onclick=()=>setRegStatus(b.dataset.reject,'rejected'));
-    $$('[data-del]',tb).forEach(b=>b.onclick=async()=>{ if(!confirm('Hapus pendaftar ini?')) return; const {error}=await supa.from('registrations').delete().eq('id', b.dataset.del); if(error) return showToast('Gagal hapus','error'); await supaSelectAll(); draw(); updateAuthUI(); });
-  }
-  flt.onchange=draw; byId('searchUsers').oninput=draw; draw();
-}
-
-/* ===== Toolbar Export (Admin) ===== */
 byId('btnExportCSV').onclick=()=>{
-  if(!ADMIN) return showToast('Hanya admin','error');
+  if(!IS_ADMIN) return showToast('Hanya admin','error');
   const cols=['id','kategori','nama','judul','tingkat','jurusan','prodi','tahun','tanggal','status','keterangan','linkSertifikat','pdf_url','foto_url'];
   const lines=[cols.join(',')].concat(DATA.map(o=>cols.map(c=>`"${(o[c]??'').toString().replaceAll('"','""')}"`).join(',')));
   downloadText('prestasi_fmipa.csv',lines.join('\n'));
 }
-byId('btnExportJSON').onclick=()=>{ if(!ADMIN) return showToast('Hanya admin','error'); downloadText('prestasi_fmipa.json',JSON.stringify(DATA,null,2)); }
+byId('btnExportJSON').onclick=()=>{ if(!IS_ADMIN) return showToast('Hanya admin','error'); downloadText('prestasi_fmipa.json',JSON.stringify(DATA,null,2)); }
 
-/* ===== Prestasi: Tambah/Edit/Delete (Admin) ===== */
-byId('btnAdd').onclick=()=>{
-  if(!ADMIN) return showToast('Hanya Admin','error');
-  $('#modalTitle').textContent='Tambah Prestasi';
-  const f=byId('formPrestasi'); f.reset(); f.dataset.editId='';
-  openModal('modalForm');
-};
-
+/* ===== Simpan Prestasi ===== */
 byId('formPrestasi').addEventListener('submit', async e=>{
   e.preventDefault();
-  if(!ADMIN) return showToast('Hanya admin','error');
+  if(!USER) return showToast('Harus login','error');
   const f=e.target, fd=new FormData(f), row=Object.fromEntries(fd.entries());
   row.tahun=Number(row.tahun||new Date().getFullYear());
   row.tanggal=row.tanggal || new Date().toISOString().slice(0,10);
   row.linkSertifikat=row.linkSertifikat?.trim()||'';
-  // upload file jika ada
+
+  // upload ke storage (jika ada)
   const img=f.fotoPenyerahan.files?.[0]; const pdf=f.pdfSertifikat.files?.[0];
   try{
     if(img){
       const path=`foto/${Date.now()}-${img.name}`; 
-      const { data, error } = await supa.storage.from(BUCKET).upload(path, img);
+      const { error } = await supa.storage.from(BUCKET).upload(path, img);
       if(error) throw error;
       const { data: pub } = supa.storage.from(BUCKET).getPublicUrl(path);
       row.foto_url=pub.publicUrl;
     }
     if(pdf){
       const path=`pdf/${Date.now()}-${pdf.name}`; 
-      const { data, error } = await supa.storage.from(BUCKET).upload(path, pdf);
+      const { error } = await supa.storage.from(BUCKET).upload(path, pdf);
       if(error) throw error;
       const { data: pub } = supa.storage.from(BUCKET).getPublicUrl(path);
       row.pdf_url=pub.publicUrl;
@@ -674,6 +536,8 @@ byId('formPrestasi').addEventListener('submit', async e=>{
 
   const editId=f.dataset.editId;
   if(editId){
+    // edit hanya admin
+    if(!IS_ADMIN) return showToast('Hanya admin yang boleh edit','error');
     const { error } = await supa.from('prestasi').update(row).eq('id', editId);
     if(error){ console.error(error); return showToast('Gagal update','error'); }
     showToast('Data diperbarui','success');
@@ -683,18 +547,18 @@ byId('formPrestasi').addEventListener('submit', async e=>{
     if(error){ console.error(error); return showToast('Gagal simpan','error'); }
     showToast('Data ditambahkan','success');
   }
-  closeModal('modalForm'); await supaSelectAll(); render();
+  closeModal('modalForm'); await fetchAll(); render();
 });
 
-/* ===== Informasi (Admin) ===== */
+/* ===== Info (Admin only add) ===== */
 function renderInfo(){
   const root=byId('app'); root.innerHTML='';
   root.appendChild(byId('tpl-info').content.cloneNode(true));
   const list=byId('listInfo'); const empty=byId('infoKosong'); const selTipe=byId('filterInfoTipe'); const q=byId('searchInfo');
 
-  byId('btnAddInfo').onclick=()=>{ if(!ADMIN) return showToast('Hanya admin','error'); const f=byId('formInfo'); f.reset(); f.tanggal.value=new Date().toISOString().slice(0,10); openModal('modalInfo'); };
+  byId('btnAddInfo').onclick=()=>{ if(!IS_ADMIN) return showToast('Hanya admin','error'); const f=byId('formInfo'); f.reset(); f.tanggal.value=new Date().toISOString().slice(0,10); openModal('modalInfo'); };
   byId('formInfo').onsubmit=async (e)=>{
-    e.preventDefault(); if(!ADMIN) return showToast('Hanya admin','error');
+    e.preventDefault(); if(!IS_ADMIN) return showToast('Hanya admin','error');
     const f=e.target; const fd=new FormData(f); const rec=Object.fromEntries(fd.entries());
     rec.judul=(rec.judul||'').trim(); rec.isi=(rec.isi||'').trim(); rec.tipe=rec.tipe||'Informasi'; rec.tanggal=rec.tanggal||new Date().toISOString().slice(0,10); rec.link=(rec.link||'').trim();
     if(!rec.judul || !rec.isi) return showToast('Judul & isi wajib','error');
@@ -708,7 +572,7 @@ function renderInfo(){
     }
     const { error } = await supa.from('info').insert(rec);
     if(error){ console.error(error); return showToast('Gagal simpan','error'); }
-    closeModal('modalInfo'); showToast('Informasi ditambahkan','success'); await supaSelectAll(); paint();
+    closeModal('modalInfo'); showToast('Informasi ditambahkan','success'); await fetchAll(); paint();
   };
   selTipe.onchange=paint; q.oninput=paint;
 
@@ -748,7 +612,6 @@ function renderBeranda(){
   root.appendChild(byId('tpl-beranda').content.cloneNode(true));
   byId('ctaAdd').onclick=()=>byId('btnAdd').click();
 
-  // Hitung 4 kotak (langsung dari DATA)
   const m = DATA.filter(x=>x.kategori==='Mahasiswa').length;
   const d = DATA.filter(x=>x.kategori==='Dosen').length;
   const t = DATA.filter(x=>x.kategori==='Tenaga Kependidikan').length;
@@ -804,7 +667,7 @@ function renderTabel(forKategori){
   $$('[data-chip]').forEach(ch=>ch.onclick=()=>{const lvl=ch.dataset.chipLevel,st=ch.dataset.chipStatus;if(lvl){state.chipLevel=lvl;$$('[data-chip][data-chip-level]').forEach(c=>c.classList.remove('active'));ch.classList.add('active');} if(st){state.chipStatus=st;$$('[data-chip][data-chip-status]').forEach(c=>c.classList.remove('active'));ch.classList.add('active');} state.page=1;paint()});
 
   function filtered(){
-    const q=quickSearch.value.trim().toLowerCase();
+    const q=byId('quickSearch').value.trim().toLowerCase();
     return DATA.filter(x=>{
       if(x.kategori!==forKategori) return false;
       if(state.filterJurusan && x.jurusan!==state.filterJurusan) return false;
@@ -841,16 +704,16 @@ function renderTabel(forKategori){
           ${x.foto_url?' • <a href="#/galeri" class="underline underline-offset-4 text-indigo-700">Foto</a>':''}
         </td>
         <td class="whitespace-nowrap">
-          ${ADMIN? `<div class="flex items-center gap-2">
+          ${IS_ADMIN ? `<div class="flex items-center gap-2">
             <button class="btn primary" title="Setujui" data-approve="${x.id}">✔</button>
             <button class="btn" title="Tolak" data-reject="${x.id}">✖</button>
             <button class="btn" title="Edit" data-edit="${x.id}">✎</button>
             <button class="btn danger" title="Hapus" data-del="${x.id}">🗑</button>
-          </div>` : `<span class="text-xs text-gray-500">Login admin untuk tindakan</span>`}
+          </div>` : `<span class="text-xs text-gray-500">Login admin untuk mengubah</span>`}
         </td>`;
       tbody.appendChild(tr);
     });
-    if(ADMIN){
+    if(IS_ADMIN){
       $$('[data-approve]').forEach(b=>b.onclick=()=>updateStatus(b.dataset.approve,'Disetujui'));
       $$('[data-reject]').forEach(b=>b.onclick=()=>updateStatus(b.dataset.reject,'Ditolak'));
       $$('[data-del]').forEach(b=>b.onclick=()=>delRow(b.dataset.del));
@@ -859,8 +722,8 @@ function renderTabel(forKategori){
     byId('infoPage').textContent=`${total} data • Urut: ${state.sortBy} (${state.sortDir})`;
     byId('pageNow').textContent=`${state.page} / ${Math.max(1,Math.ceil(total/state.pageSize))}`;
   }
-  async function updateStatus(id,st){const { error } = await supa.from('prestasi').update({status:st}).eq('id', id); if(error){console.error(error);return showToast('Gagal update','error');} await supaSelectAll(); showToast(`Status diubah ke ${st}`,'success'); paint();}
-  async function delRow(id){ if(!confirm('Hapus data ini?')) return; const { error } = await supa.from('prestasi').delete().eq('id', id); if(error){console.error(error);return showToast('Gagal hapus','error');} await supaSelectAll(); showToast('Data dihapus','success'); paint();}
+  async function updateStatus(id,st){const { error } = await supa.from('prestasi').update({status:st}).eq('id', id); if(error){console.error(error);return showToast('Gagal update','error');} await fetchAll(); showToast(`Status diubah ke ${st}`,'success'); paint();}
+  async function delRow(id){ if(!confirm('Hapus data ini?')) return; const { error } = await supa.from('prestasi').delete().eq('id', id); if(error){console.error(error);return showToast('Gagal hapus','error');} await fetchAll(); showToast('Data dihapus','success'); paint();}
   function editRow(id){
     const x=DATA.find(r=>r.id===id); if(!x)return;
     $('#modalTitle').textContent='Edit Prestasi';
@@ -887,7 +750,7 @@ function groupCount(a,k){return a.reduce((m,c)=>(m[c[k]]=(m[c[k]]||0)+1,m),{})}
 function makeChartOrFallback(id,fid,type,labels,data){
   const ctx=byId(id).getContext('2d');
   if(window.__chartOffline||typeof Chart==='undefined'){
-    byId(fid).classList.remove('hidden'); ctx.fillText('Grafik tidak tersedia (offline)',10,20);
+    byId(fid).classList.remove('hidden'); try{ctx.fillText('Grafik tidak tersedia (offline)',10,20);}catch{}
   } else {
     const optsCommon={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:type!=='bar'}}};
     const ds = type==='pie' ? [{data}] : [{label:'Jumlah',data}];
@@ -929,16 +792,14 @@ function renderTentang(){
   const root=byId('app'); root.innerHTML=''; root.appendChild(byId('tpl-tentang').content.cloneNode(true));
 }
 
-/* ===== Render helper ===== */
-async function render(){ await supaSelectAll(); router(); }
+/* ===== Render helpers ===== */
+async function render(){ await fetchAll(); route(); }
 
 /* ===== Init ===== */
-updateAuthUI();
-render();
+refreshUser().then(render);
 
-/* ====== Menu dropdown ====== */
-byId('btnAdminMenu').onclick=()=>byId('adminMenu').classList.toggle('hidden');
-byId('btnSivitasMenu').onclick=()=>byId('sivitasMenu').classList.toggle('hidden');
+// keyboard: Ctrl+/ fokus search
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='/'){e.preventDefault();byId('quickSearch').focus();}});
 
   </script>
 </body>
